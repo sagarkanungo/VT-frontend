@@ -1,0 +1,156 @@
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    font-family: sans-serif;
+    background-color: #f5f5f5;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    background-color: #003366;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+  }
+  
+  .sidebar-header h2 {
+    margin: 0;
+  }
+  
+  .sidebar-header p {
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  
+  .sidebar-nav {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .sidebar-btn {
+    background: none;
+    color: #fff;
+    border: none;
+    text-align: left;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .sidebar-btn:hover {
+    background-color: #0055aa;
+  }
+  
+  .logout-btn {
+    margin-top: auto;
+    padding: 10px;
+    border: none;
+    background-color: #ff4d4d;
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .logout-btn:hover {
+    background-color: #e60000;
+  }
+  
+  /* Main content */
+  .dashboard-main {
+    flex: 1;
+    padding: 20px;
+  }
+  
+  /* Cards */
+  .card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  
+    /* New width settings */
+    width: 300px;          /* Fixed smaller width */
+    max-width: 90%;        /* Responsive on small screens */
+    margin-left: auto;      /* Center horizontally */
+    margin-right: auto;     /* Center horizontally */
+    text-align: center;
+  }
+  
+  .balance-card {
+    background-color: #003366;
+    color: #fff;
+  }
+  
+  
+  .new-entry-card {
+    text-align: center;
+  }
+  
+  .dashboard-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .transfer-card,
+  .history-card {
+    flex: 1;
+    min-width: 250px;
+    text-align: center;
+  }
+  
+  .icon {
+    font-size: 40px;
+    margin: 15px 0;
+  }
+  
+  .btn-primary {
+    padding: 10px 20px;
+    background-color: #003366;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .btn-secondary {
+    padding: 8px 16px;
+    background-color: #e0e0e0;
+    color: #333;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .dashboard-container {
+      flex-direction: column;
+    }
+  
+    .sidebar {
+      width: 100%;
+      flex-direction: row;
+      overflow-x: auto;
+    }
+  
+    .sidebar-nav {
+      flex-direction: row;
+      gap: 10px;
+    }
+  
+    .dashboard-main {
+      padding: 10px;
+    }
+  
+    .dashboard-row {
+      flex-direction: column;
+    }
+  }
+  

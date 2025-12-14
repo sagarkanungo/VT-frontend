@@ -1,0 +1,35 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body {
+  background: #f4f6f9;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: #0b2c5d;
+  color: #fff;
+  padding: 16px;
+  text-align: center;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.welcome-text {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+
