@@ -1,0 +1,393 @@
+/* Container */
+.admin-users-container {
+  padding: 20px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* Card style like user dashboard */
+.admin-users-container h3 {
+  color: #003366;
+  margin-bottom: 20px;
+}
+
+/* Activity Summary Cards */
+.activity-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.summary-card.high {
+  border-color: #059669;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+}
+
+.summary-card.medium {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+}
+
+.summary-card.low {
+  border-color: #6b7280;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+}
+
+.summary-card.total {
+  border-color: #003366;
+  background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%);
+}
+
+.summary-count {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.summary-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  gap: 1rem;
+}
+
+.loading-spinner p {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #003366;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Table responsive wrapper */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Table styles */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  min-width: 1200px; /* Increased for new columns */
+}
+
+.table th,
+.table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+}
+
+.table th {
+  background-color: #003366;
+  color: #fff;
+  font-weight: 500;
+}
+
+.table tr:hover {
+  background-color: #f1f5fa;
+}
+
+/* Balance Cell */
+.balance-cell {
+  font-weight: 600;
+  color: #059669;
+  font-size: 15px;
+}
+
+/* Activity Level Badge */
+.activity-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  min-width: 80px;
+  text-align: center;
+}
+
+.activity-badge.high {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #059669;
+}
+
+.activity-badge.medium {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
+.activity-badge.low {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #6b7280;
+}
+
+/* Entry Numbers Cell */
+.entry-numbers-cell {
+  text-align: center;
+}
+
+.entry-count {
+  font-weight: 600;
+  color: #8b5cf6;
+  font-size: 16px;
+  display: block;
+}
+
+.entry-total {
+  color: #6b7280;
+  font-size: 11px;
+  display: block;
+  margin-top: 2px;
+}
+
+/* Badge */
+.badge {
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.bg-success {
+  background-color: #28a745 !important;
+  color: #fff;
+}
+
+.bg-warning {
+  background-color: #ffc107 !important;
+  color: #000;
+}
+
+/* Buttons */
+.btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+  display: inline-block;
+  margin-bottom: 4px;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.btn-success:hover {
+  background-color: #218838;
+}
+
+.btn-danger {
+  background-color: #ff4d4d;
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background-color: #e60000;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+}
+
+.me-2 {
+  margin-right: 8px;
+}
+
+/* Action buttons container - stack buttons vertically on mobile */
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.table td:last-child {
+  white-space: nowrap;
+}
+
+/* Stack buttons vertically on smaller screens */
+@media (max-width: 992px) {
+  .action-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .table td:last-child {
+    white-space: normal;
+  }
+  
+  .action-buttons .btn {
+    width: 100%;
+    margin-bottom: 4px;
+    margin-right: 0;
+  }
+  
+  .action-buttons .me-2 {
+    margin-right: 0;
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-users-container {
+    padding: 10px;
+  }
+  
+  .activity-summary {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .summary-card {
+    padding: 1rem;
+  }
+  
+  .summary-count {
+    font-size: 1.5rem;
+  }
+  
+  .summary-label {
+    font-size: 0.75rem;
+  }
+  
+  .table {
+    font-size: 12px;
+    min-width: 1000px; /* Maintain horizontal scroll for better readability */
+  }
+  
+  .table th,
+  .table td {
+    font-size: 11px;
+    padding: 8px 6px;
+  }
+
+  .btn {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  
+  .activity-badge {
+    font-size: 10px;
+    padding: 3px 6px;
+    min-width: 70px;
+  }
+  
+  .entry-count {
+    font-size: 14px;
+  }
+  
+  .entry-total {
+    font-size: 10px;
+  }
+  
+  .balance-cell {
+    font-size: 13px;
+  }
+  
+  /* Make table horizontally scrollable on mobile */
+  .table-responsive {
+    overflow-x: auto;
+  }
+}
+
+/* For very small screens, make buttons even more compact */
+@media (max-width: 480px) {
+  .activity-summary {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .summary-card {
+    padding: 0.75rem;
+  }
+  
+  .summary-count {
+    font-size: 1.25rem;
+  }
+  
+  .table {
+    min-width: 900px;
+  }
+  
+  .table th,
+  .table td {
+    padding: 6px 4px;
+    font-size: 10px;
+  }
+  
+  .table td:last-child .btn {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+  
+  .activity-badge {
+    font-size: 9px;
+    padding: 2px 4px;
+    min-width: 60px;
+  }
+  
+  .entry-count {
+    font-size: 12px;
+  }
+  
+  .balance-cell {
+    font-size: 11px;
+  }
+}

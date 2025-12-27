@@ -12,7 +12,7 @@
   .auth-card {
     background: #ffffff;
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
@@ -41,15 +41,38 @@
     border-radius: 6px;
     border: 1px solid #ddd;
     font-size: 14px;
+    box-sizing: border-box;
   }
   
   .auth-card input:focus {
     outline: none;
     border-color: #0b1c2d;
   }
-  
+
+  /* Password input container */
+  .password-input-container {
+    position: relative;
+    margin-bottom: 15px;
+    display: block;
+    width: 100%;
+  }
+
+  .password-input-container input {
+    width: 100%;
+    padding-right: 45px !important;
+    padding-left: 12px !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 0 !important;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    box-sizing: border-box;
+    display: block;
+  }
+
   /* Button */
-  .auth-card button {
+  .auth-card button:not(.password-toggle-btn) {
     width: 100%;
     padding: 12px;
     background: #0b1c2d;
@@ -61,14 +84,78 @@
     cursor: pointer;
   }
   
-  .auth-card button:hover {
+  .auth-card button:not(.password-toggle-btn):hover {
     background: #12385c;
+  }
+
+  /* Ensure password toggle button doesn't inherit form button styles */
+  .password-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none !important;
+    border: none !important;
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px !important;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    z-index: 10;
+    width: auto !important;
+    height: auto !important;
+    font-size: inherit !important;
+    font-weight: normal !important;
+  }
+
+  .password-toggle-btn:hover {
+    color: #0b1c2d !important;
+    background-color: rgba(11, 28, 45, 0.1) !important;
+  }
+
+  .password-toggle-btn:focus {
+    outline: none;
+    color: #0b1c2d;
+  }
+
+  /* Switch text */
+  .switch-text {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .switch-text span {
+    color: #0b1c2d;
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: underline;
+  }
+
+  .switch-text span:hover {
+    color: #12385c;
   }
   
   /* Mobile responsive */
   @media (max-width: 480px) {
     .auth-card {
       padding: 20px;
+    }
+
+    .password-toggle-btn {
+      right: 10px !important;
+      padding: 6px !important;
+    }
+
+    .password-input-container input {
+      padding-right: 40px !important;
+      padding-left: 12px !important;
+      padding-top: 12px !important;
+      padding-bottom: 12px !important;
     }
   }
   

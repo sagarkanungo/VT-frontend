@@ -1,7 +1,8 @@
 import { useState } from "react";
-import axios from "axios";
+import apiClient from "../../utils/axios";
 import { useNavigate } from "react-router-dom";
 import "../assets/css/register.css";
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 function Register() {
   const navigate = useNavigate();
@@ -11,8 +12,13 @@ function Register() {
     phone: "",
     password: "",
     confirm_password: "",
+    pin: "",
     id_document: null,
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPin, setShowPin] = useState(false);
 
   const handleChange = (e) => {
     if (e.target.name === "id_document") {
@@ -22,25 +28,31 @@ function Register() {
     }
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const togglePinVisibility = () => {
+    setShowPin(!showPin);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (form.pin.length !== 4) {
+      return alert("PIN must be 4 digits");
+    }
 
     const data = new FormData();
     Object.keys(form).forEach((key) => data.append(key, form[key]));
 
     try {
-      await axios.post("http://localhost:5000/api/register", data);
-
-      // ✅ redirect after success
+      await apiClient.post("/api/register", data);
       navigate("/login");
-
-      setForm({
-        full_name: "",
-        phone: "",
-        password: "",
-        confirm_password: "",
-        id_document: null,
-      });
     } catch (err) {
       alert(err.response?.data?.error || "Registration failed");
     }
@@ -69,23 +81,60 @@ function Register() {
           required
         />
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Create Password"
-          value={form.password}
-          onChange={handleChange}
-          required
-        />
+        <div className="password-input-container">
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Create Password"
+            value={form.password}
+            onChange={handleChange}
+            required
+          />
+          <button
+            type="button"
+            className="password-toggle-btn"
+            onClick={togglePasswordVisibility}
+          >
+            {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+          </button>
+        </div>
 
-        <input
-          type="password"
-          name="confirm_password"
-          placeholder="Confirm Password"
-          value={form.confirm_password}
-          onChange={handleChange}
-          required
-        />
+        <div className="password-input-container">
+          <input
+            type={showConfirmPassword ? "text" : "password"}
+            name="confirm_password"
+            placeholder="Confirm Password"
+            value={form.confirm_password}
+            onChange={handleChange}
+            required
+          />
+          <button
+            type="button"
+            className="password-toggle-btn"
+            onClick={toggleConfirmPasswordVisibility}
+          >
+            {showConfirmPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+          </button>
+        </div>
+
+        <div className="password-input-container">
+          <input
+            type={showPin ? "text" : "password"}
+            name="pin"
+            placeholder="4 Digit PIN"
+            value={form.pin}
+            maxLength="4"
+            onChange={handleChange}
+            required
+          />
+          <button
+            type="button"
+            className="password-toggle-btn"
+            onClick={togglePinVisibility}
+          >
+            {showPin ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+          </button>
+        </div>
 
         <div className="file-input">
           <label>Upload Valid ID</label>

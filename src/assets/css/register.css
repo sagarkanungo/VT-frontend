@@ -1,3 +1,6 @@
+
+
+
 .register-container {
     background: #fff;
     padding: 25px;
@@ -5,6 +8,7 @@
     max-width: 420px;
     border-radius: 8px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    
   }
   
   .register-title {
@@ -23,6 +27,59 @@
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    box-sizing: border-box;
+  }
+
+  /* Password input container */
+  .password-input-container {
+    position: relative;
+    display: block;
+    width: 100%;
+  }
+
+  .password-input-container input {
+    width: 100% !important;
+    padding-right: 45px !important;
+    padding-left: 10px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    display: block;
+  }
+
+  /* Ensure password toggle button doesn't inherit form button styles */
+  .password-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none !important;
+    border: none !important;
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px !important;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    z-index: 10;
+    width: auto !important;
+    height: auto !important;
+    font-size: inherit !important;
+    font-weight: normal !important;
+  }
+
+  .password-toggle-btn:hover {
+    color: #0b2c5d !important;
+    background-color: rgba(11, 44, 93, 0.1) !important;
+  }
+
+  .password-toggle-btn:focus {
+    outline: none;
+    color: #0b2c5d;
   }
   
   .file-input label {
@@ -45,11 +102,42 @@
   .btn-primary:hover {
     background: #09306f;
   }
+
+  /* Switch text */
+  .switch-text {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .switch-text span {
+    color: #0b2c5d;
+    cursor: pointer;
+    font-weight: 500;
+    text-decoration: underline;
+  }
+
+  .switch-text span:hover {
+    color: #09306f;
+  }
   
   /* Responsive */
   @media (max-width: 480px) {
     .register-container {
       padding: 20px;
+    }
+
+    .password-toggle-btn {
+      right: 10px !important;
+      padding: 6px !important;
+    }
+
+    .password-input-container input {
+      padding-right: 40px !important;
+      padding-left: 10px !important;
+      padding-top: 10px !important;
+      padding-bottom: 10px !important;
     }
   }
   
