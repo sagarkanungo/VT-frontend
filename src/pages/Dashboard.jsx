@@ -12,22 +12,26 @@ import {
   FiLogOut,
   FiMenu,
   FiX,
-  FiAlertCircle
+  FiAlertCircle,
+  FiBell
 } from "react-icons/fi";
 
 import NewEntry from "./NewEntry";
 import Transfer from "./Transfer";
 import History from "./History";
+import Notifications from "./Notifications";
+import NotificationBadge from "../components/NotificationBadge";
 
 function Dashboard() {
   const [showChat, setShowChat] = useState(false);
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
   const [totalBalance, setTotalBalance] = useState(0);
-  const [activeSection, setActiveSection] = useState(null); // null, 'newEntry', 'transfer', 'history'
+  const [activeSection, setActiveSection] = useState(null); // null, 'newEntry', 'transfer', 'history', 'notifications'
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [transactionAllowed, setTransactionAllowed] = useState(true);
   const [transactionMessage, setTransactionMessage] = useState('');
+  const [notificationCount, setNotificationCount] = useState(0);
 
   const user = getUserFromToken();
   console.log('user',user)
@@ -57,12 +61,27 @@ const checkTransactionStatus = async () => {
   }
 };
 
+const fetchNotificationCount = async () => {
+  try {
+    const response = await apiClient.get('/api/notifications/count');
+    setNotificationCount(response.data.unreadCount || 0);
+  } catch (error) {
+    console.error('Error fetching notification count:', error);
+    // Set to 0 on error to prevent UI issues
+    setNotificationCount(0);
+  }
+};
+
 useEffect(() => {
   fetchBalance();
   checkTransactionStatus();
+  fetchNotificationCount();
   
   // Check transaction status every minute
-  const interval = setInterval(checkTransactionStatus, 60000);
+  const interval = setInterval(() => {
+    checkTransactionStatus();
+    fetchNotificationCount();
+  }, 60000);
   return () => clearInterval(interval);
 }, [userId]);
 
@@ -113,6 +132,8 @@ useEffect(() => {
         return <Transfer onTransferSuccess={fetchBalance}  />;
       case "history":
         return <History />;
+      case "notifications":
+        return <Notifications />;
       default:
         return (
           <>
@@ -222,6 +243,15 @@ useEffect(() => {
           >
             <FiClock className="sidebar-icon" />
             <span>History</span>
+          </button>
+          <button 
+            className={`sidebar-btn ${activeSection === 'notifications' ? 'active' : ''}`} 
+            onClick={() => handleSidebarItemClick("notifications")}
+            style={{ position: 'relative' }}
+          >
+            <FiBell className="sidebar-icon" />
+            <span>Notifications</span>
+            <NotificationBadge count={notificationCount} />
           </button>
           <button 
             className="sidebar-btn" 

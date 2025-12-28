@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import apiClient from "../../../utils/axios";
-import Pagination from "../../components/Pagination";
+import LoadingSpinner from "../../components/LoadingSpinner";
 import "../../assets/css/analytics.css";
 import { 
   FiUsers, 
@@ -411,10 +411,7 @@ const Analytics = () => {
         <div className="analytics-header">
           <h1>Analytics Dashboard</h1>
         </div>
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Loading analytics data...</p>
-        </div>
+        <LoadingSpinner message="Loading analytics data..." size="large" />
       </div>
     );
   }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import apiClient from "../../../utils/axios";
+import LoadingSpinner from "../../components/LoadingSpinner";
 import "../../assets/css/credentials.css";
 import { FiEdit2, FiSave, FiX, FiUser, FiPhone, FiLock } from "react-icons/fi";
 
@@ -107,10 +108,7 @@ const ChangeCredentials = () => {
   if (loading) {
     return (
       <div className="credentials-container">
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Loading admin credentials...</p>
-        </div>
+        <LoadingSpinner message="Loading admin credentials..." size="large" />
       </div>
     );
   }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { isTransactionAllowed, getCurrentTime } from '../../utils/timeUtils';
 import { FiClock, FiAlertCircle } from 'react-icons/fi';
+import LoadingSpinner from './LoadingSpinner';
 import './TransactionGuard.css';
 
 const TransactionGuard = ({ children, onStatusChange }) => {
@@ -50,8 +51,7 @@ const TransactionGuard = ({ children, onStatusChange }) => {
   if (loading) {
     return (
       <div className="transaction-guard-loading">
-        <div className="loading-spinner"></div>
-        <p>Checking transaction availability...</p>
+        <LoadingSpinner message="Checking transaction availability..." size="medium" />
       </div>
     );
   }

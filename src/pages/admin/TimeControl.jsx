@@ -120,9 +120,9 @@ await apiClient.post("/api/time-settings", timeSettings);
           Transaction Time Control
         </h2>
         <p>Set allowed transaction hours for users</p>
-        <div className="api-notice">
+        {/* <div className="api-notice">
           <small>⚠️ Requires backend API endpoint: GET /api/time-settings (public) and POST /api/admin/time-settings (admin only)</small>
-        </div>
+        </div> */}
       </div>
 
       <div className="current-status">

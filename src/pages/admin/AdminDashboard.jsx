@@ -5,6 +5,9 @@ import AdminMoneyRequests from "./AdminMoneyRequests";
 import Analytics from "./Analytics";
 import ChangeCredentials from "./ChangeCredentials";
 import TimeControl from "./TimeControl";
+import NotificationManager from "./NotificationManager";
+import NotificationBadge from "../../components/NotificationBadge";
+import apiClient from "../../../utils/axios";
 import { 
   FiUsers, 
   FiDollarSign, 
@@ -13,18 +16,35 @@ import {
   FiX,
   FiBarChart2,
   FiSettings,
-  FiClock
+  FiClock,
+  FiBell
 } from "react-icons/fi";
 
 const AdminDashboard = () => {
   const user = getUserFromToken();
-  const [activeSection, setActiveSection] = useState("users"); // "users", "requests", "analytics", or "credentials"
+  const [activeSection, setActiveSection] = useState("users"); // "users", "requests", "analytics", "notifications", "timecontrol", or "credentials"
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
 
   useEffect(() => {
     if (!user) window.location.href = "/login";
     if (user.role !== "admin") window.location.href = "/dashboard";
+    
+    fetchPendingRequestsCount();
+    
+    // Refresh count every 30 seconds
+    const interval = setInterval(fetchPendingRequestsCount, 30000);
+    return () => clearInterval(interval);
   }, [user]);
+
+  const fetchPendingRequestsCount = async () => {
+    try {
+      const response = await apiClient.get('/api/admin/money-requests/count');
+      setPendingRequestsCount(response.data.pendingCount);
+    } catch (error) {
+      console.error('Error fetching pending requests count:', error);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -71,9 +91,11 @@ const AdminDashboard = () => {
           <button
             className={`sidebar-btn ${activeSection === "requests" ? "active" : ""}`}
             onClick={() => handleSidebarItemClick("requests")}
+            style={{ position: 'relative' }}
           >
             <FiDollarSign className="sidebar-icon" />
             <span>Money Requests</span>
+            <NotificationBadge count={pendingRequestsCount} />
           </button>
           <button
             className={`sidebar-btn ${activeSection === "analytics" ? "active" : ""}`}
@@ -81,6 +103,13 @@ const AdminDashboard = () => {
           >
             <FiBarChart2 className="sidebar-icon" />
             <span>Analytics</span>
+          </button>
+          <button
+            className={`sidebar-btn ${activeSection === "notifications" ? "active" : ""}`}
+            onClick={() => handleSidebarItemClick("notifications")}
+          >
+            <FiBell className="sidebar-icon" />
+            <span>Notifications</span>
           </button>
           <button
             className={`sidebar-btn ${activeSection === "timecontrol" ? "active" : ""}`}
@@ -109,6 +138,7 @@ const AdminDashboard = () => {
         {activeSection === "users" && <UsersTable />}
         {activeSection === "requests" && <AdminMoneyRequests />}
         {activeSection === "analytics" && <Analytics />}
+        {activeSection === "notifications" && <NotificationManager />}
         {activeSection === "timecontrol" && <TimeControl />}
         {activeSection === "credentials" && <ChangeCredentials />}
       </main>

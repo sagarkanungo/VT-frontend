@@ -868,6 +868,103 @@
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  padding: 24px;
+}
+
+/* Search Container for History */
+.history-list .search-container {
+  margin-bottom: 2rem;
+}
+
+.history-list .search-bar {
+  position: relative;
+  max-width: 500px;
+  margin: 0 auto 1rem auto;
+}
+
+.history-list .search-input {
+  width: 100%;
+  padding: 12px 75px 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 16px;
+  background-color: #fff;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.history-list .search-input:focus {
+  outline: none;
+  border-color: #003366;
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+}
+
+.history-list .search-input::placeholder {
+  color: #94a3b8;
+}
+
+.history-list .search-icon {
+  position: absolute;
+  right: 45px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.history-list .clear-search {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.history-list .clear-search:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.history-list .search-results {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.history-list .results-count {
+  font-size: 14px;
+  color: #6b7280;
+  background-color: #f1f5f9;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-right: 1rem;
+}
+
+.history-list .pagination-info {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.history-list .no-results {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-style: italic;
+  background-color: #f9fafb;
 }
 
 .history-list table {
@@ -911,6 +1008,25 @@
   .history-list {
     margin: 16px;
     overflow-x: auto;
+    padding: 16px;
+  }
+  
+  .history-list .search-bar {
+    max-width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .history-list .search-input {
+    padding: 14px 75px 14px 16px;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+  
+  .history-list .search-icon {
+    right: 45px;
+  }
+  
+  .history-list .clear-search {
+    right: 16px;
   }
   
   .history-list th, .history-list td {

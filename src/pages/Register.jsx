@@ -138,7 +138,7 @@ function Register() {
 
         <div className="file-input">
           <label>Upload Valid ID</label>
-          <input type="file" name="id_document" onChange={handleChange} />
+          <input type="file" name="id_document" onChange={handleChange} required/>
         </div>
 
         <button type="submit" className="btn-primary">
