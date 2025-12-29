@@ -142,7 +142,7 @@ function NewEntry() {
   };
 
   if (loading) return <div>Loading...</div>;
-
+//sagar
   return (
     <TransactionGuard>
       <div className="new-entry-form">
