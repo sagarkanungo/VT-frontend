@@ -5,8 +5,8 @@ import AdminMoneyRequests from "./AdminMoneyRequests";
 import Analytics from "./Analytics";
 import ChangeCredentials from "./ChangeCredentials";
 import TimeControl from "./TimeControl";
-import NotificationManager from "./NotificationManager";
-import NotificationBadge from "../../components/NotificationBadge";
+import AdminNotifications from "./AdminNotifications";
+
 import apiClient from "../../../utils/axios";
 import { 
   FiUsers, 
@@ -22,7 +22,7 @@ import {
 
 const AdminDashboard = () => {
   const user = getUserFromToken();
-  const [activeSection, setActiveSection] = useState("users"); // "users", "requests", "analytics", "notifications", "timecontrol", or "credentials"
+  const [activeSection, setActiveSection] = useState("users"); 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
 
@@ -91,11 +91,12 @@ const AdminDashboard = () => {
           <button
             className={`sidebar-btn ${activeSection === "requests" ? "active" : ""}`}
             onClick={() => handleSidebarItemClick("requests")}
-            style={{ position: 'relative' }}
           >
             <FiDollarSign className="sidebar-icon" />
             <span>Money Requests</span>
-            <NotificationBadge count={pendingRequestsCount} />
+            {pendingRequestsCount > 0 && (
+              <span className="request-count-badge">{pendingRequestsCount}</span>
+            )}
           </button>
           <button
             className={`sidebar-btn ${activeSection === "analytics" ? "active" : ""}`}
@@ -104,19 +105,20 @@ const AdminDashboard = () => {
             <FiBarChart2 className="sidebar-icon" />
             <span>Analytics</span>
           </button>
-          <button
-            className={`sidebar-btn ${activeSection === "notifications" ? "active" : ""}`}
-            onClick={() => handleSidebarItemClick("notifications")}
-          >
-            <FiBell className="sidebar-icon" />
-            <span>Notifications</span>
-          </button>
+         
           <button
             className={`sidebar-btn ${activeSection === "timecontrol" ? "active" : ""}`}
             onClick={() => handleSidebarItemClick("timecontrol")}
           >
             <FiClock className="sidebar-icon" />
             <span>Time Control</span>
+          </button>
+          <button
+            className={`sidebar-btn ${activeSection === "notifications" ? "active" : ""}`}
+            onClick={() => handleSidebarItemClick("notifications")}
+          >
+            <FiBell className="sidebar-icon" />
+            <span>Send Announcement</span>
           </button>
           <button
             className={`sidebar-btn ${activeSection === "credentials" ? "active" : ""}`}
@@ -136,10 +138,10 @@ const AdminDashboard = () => {
       {/* Main content */}
       <main className="dashboard-main">
         {activeSection === "users" && <UsersTable />}
-        {activeSection === "requests" && <AdminMoneyRequests />}
+        {activeSection === "requests" && <AdminMoneyRequests onRequestUpdate={fetchPendingRequestsCount} />}
         {activeSection === "analytics" && <Analytics />}
-        {activeSection === "notifications" && <NotificationManager />}
         {activeSection === "timecontrol" && <TimeControl />}
+        {activeSection === "notifications" && <AdminNotifications />}
         {activeSection === "credentials" && <ChangeCredentials />}
       </main>
     </div>

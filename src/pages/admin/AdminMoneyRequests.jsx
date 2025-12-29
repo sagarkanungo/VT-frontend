@@ -3,7 +3,7 @@ import apiClient from "../../../utils/axios";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Pagination from "../../components/Pagination";
 
-const AdminMoneyRequests = () => {
+const AdminMoneyRequests = ({ onRequestUpdate }) => {
   const [requests, setRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -66,6 +66,10 @@ const AdminMoneyRequests = () => {
       );
       alert("Payment successful!");
       fetchRequests();
+      // Refresh count in parent component
+      if (onRequestUpdate) {
+        onRequestUpdate();
+      }
     } catch (err) {
       console.error(err);
       alert("Failed to pay");

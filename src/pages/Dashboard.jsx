@@ -13,25 +13,31 @@ import {
   FiMenu,
   FiX,
   FiAlertCircle,
-  FiBell
+  FiBell,
+  FiUsers,
+  FiCopy,
+  FiCheck,
 } from "react-icons/fi";
 
 import NewEntry from "./NewEntry";
 import Transfer from "./Transfer";
 import History from "./History";
-import Notifications from "./Notifications";
-import NotificationBadge from "../components/NotificationBadge";
+import { AiFillBell } from "react-icons/ai";
+
 
 function Dashboard() {
   const [showChat, setShowChat] = useState(false);
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
   const [totalBalance, setTotalBalance] = useState(0);
-  const [activeSection, setActiveSection] = useState(null); // null, 'newEntry', 'transfer', 'history', 'notifications'
+  const [activeSection, setActiveSection] = useState(null); 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [transactionAllowed, setTransactionAllowed] = useState(true);
   const [transactionMessage, setTransactionMessage] = useState('');
-  const [notificationCount, setNotificationCount] = useState(0);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+const [unreadCount, setUnreadCount] = useState(0);
+const [showNotifications, setShowNotifications] = useState(false);
 
   const user = getUserFromToken();
   console.log('user',user)
@@ -49,6 +55,24 @@ const fetchBalance = async () => {
   }
 };
 
+const copyToClipboard = async (text) => {
+  try {
+    await navigator.clipboard.writeText(text);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
+  } catch (err) {
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
+  }
+};
+
 const checkTransactionStatus = async () => {
   try {
     const status = await isTransactionAllowed();
@@ -61,29 +85,28 @@ const checkTransactionStatus = async () => {
   }
 };
 
-const fetchNotificationCount = async () => {
-  try {
-    const response = await apiClient.get('/api/notifications/count');
-    setNotificationCount(response.data.unreadCount || 0);
-  } catch (error) {
-    console.error('Error fetching notification count:', error);
-    // Set to 0 on error to prevent UI issues
-    setNotificationCount(0);
-  }
-};
 
-useEffect(() => {
-  fetchBalance();
-  checkTransactionStatus();
-  fetchNotificationCount();
-  
-  // Check transaction status every minute
-  const interval = setInterval(() => {
+
+  useEffect(() => {
+    fetchBalance();
     checkTransactionStatus();
-    fetchNotificationCount();
-  }, 60000);
-  return () => clearInterval(interval);
-}, [userId]);
+    fetchNotifications();
+    
+    // Check transaction status every minute
+    const interval = setInterval(() => {
+      checkTransactionStatus();
+    }, 60000);
+    
+    // Fetch notifications every 30 seconds
+    const notificationInterval = setInterval(() => {
+      fetchNotifications();
+    }, 30000);
+    
+    return () => {
+      clearInterval(interval);
+      clearInterval(notificationInterval);
+    };
+  }, [userId]);
 
 
   const handleSendRequest = async () => {
@@ -124,6 +147,36 @@ useEffect(() => {
     setSidebarOpen(false); // Close sidebar on mobile after selection
   };
 
+  const fetchNotifications = async () => {
+    try {
+      const res = await apiClient.get(`/api/notifications/${userId}`);
+      setNotifications(res.data);
+  
+      const unread = res.data.filter(n => n.is_read === 0).length;
+      setUnreadCount(unread);
+    } catch (err) {
+      console.error("Failed to fetch notifications", err);
+    }
+  };
+
+  const markNotificationRead = async (id) => {
+    try {
+      await apiClient.put(`/api/notifications/${id}/read`);
+  
+      setNotifications(prev =>
+        prev.map(n =>
+          n.id === id ? { ...n, is_read: 1 } : n
+        )
+      );
+  
+      setUnreadCount(prev => Math.max(prev - 1, 0));
+    } catch (err) {
+      console.error("Failed to mark read", err);
+    }
+  };
+  
+  
+
   const renderSection = () => {
     switch (activeSection) {
       case "newEntry":
@@ -132,8 +185,109 @@ useEffect(() => {
         return <Transfer onTransferSuccess={fetchBalance}  />;
       case "history":
         return <History />;
-      case "notifications":
-        return <Notifications />;
+      case "referral":
+        return (
+          <div className="referral-section">
+            <div className="referral-header">
+              <h2>Share VT App</h2>
+              <p>Invite your friends to join VT App!</p>
+            </div>
+
+            {/* App Info */}
+            <div className="app-info-card">
+              <div className="app-icon">💸</div>
+              <div className="app-details">
+                <h3>VT App</h3>
+                <p>The best app for managing your transactions and entries</p>
+              </div>
+            </div>
+
+            {/* Share Message */}
+            <div className="share-message-section">
+              <h3>Share Message</h3>
+              <div className="message-container">
+                <textarea 
+                  value="Hey! Check out VT App - it's amazing for managing transactions and entries. Download it now!"
+                  readOnly 
+                  className="share-message-input"
+                  rows="3"
+                />
+                <button 
+                  className="copy-btn"
+                  onClick={() => copyToClipboard("Hey! Check out VT App - it's amazing for managing transactions and entries. Download it now!")}
+                >
+                  {copySuccess ? <FiCheck /> : <FiCopy />}
+                </button>
+              </div>
+            </div>
+
+            {/* Share Buttons */}
+            <div className="share-buttons">
+              <h3>Share Now</h3>
+              <div className="share-options">
+                <button 
+                  className="share-btn whatsapp"
+                  onClick={() => window.open(`https://wa.me/?text=Hey! Check out VT App - it's amazing for managing transactions and entries. Download it now!`, '_blank')}
+                >
+                  📱 WhatsApp
+                </button>
+                <button 
+                  className="share-btn telegram"
+                  onClick={() => window.open(`https://t.me/share/url?text=Hey! Check out VT App - it's amazing for managing transactions and entries. Download it now!`, '_blank')}
+                >
+                  ✈️ Telegram
+                </button>
+                <button 
+                  className="share-btn facebook"
+                  onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${window.location.origin}&quote=Hey! Check out VT App - it's amazing for managing transactions and entries.`, '_blank')}
+                >
+                  📘 Facebook
+                </button>
+                <button 
+                  className="share-btn twitter"
+                  onClick={() => window.open(`https://twitter.com/intent/tweet?text=Hey! Check out VT App - it's amazing for managing transactions and entries. Download it now!`, '_blank')}
+                >
+                  🐦 Twitter
+                </button>
+                <button 
+                  className="share-btn copy"
+                  onClick={() => copyToClipboard("Hey! Check out VT App - it's amazing for managing transactions and entries. Download it now!")}
+                >
+                  📋 Copy Message
+                </button>
+              </div>
+            </div>
+
+            {/* Why Share */}
+            <div className="why-share">
+              <h3>Why Share VT App?</h3>
+              <div className="benefits">
+                <div className="benefit">
+                  <div className="benefit-icon">✨</div>
+                  <div className="benefit-content">
+                    <h4>Easy to Use</h4>
+                    <p>Simple and intuitive interface for everyone</p>
+                  </div>
+                </div>
+                <div className="benefit">
+                  <div className="benefit-icon">🔒</div>
+                  <div className="benefit-content">
+                    <h4>Secure</h4>
+                    <p>Your data and transactions are completely safe</p>
+                  </div>
+                </div>
+                <div className="benefit">
+                  <div className="benefit-icon">⚡</div>
+                  <div className="benefit-content">
+                    <h4>Fast</h4>
+                    <p>Quick transactions and instant updates</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+     
       default:
         return (
           <>
@@ -245,14 +399,13 @@ useEffect(() => {
             <span>History</span>
           </button>
           <button 
-            className={`sidebar-btn ${activeSection === 'notifications' ? 'active' : ''}`} 
-            onClick={() => handleSidebarItemClick("notifications")}
-            style={{ position: 'relative' }}
+            className={`sidebar-btn ${activeSection === 'referral' ? 'active' : ''}`} 
+            onClick={() => handleSidebarItemClick("referral")}
           >
-            <FiBell className="sidebar-icon" />
-            <span>Notifications</span>
-            <NotificationBadge count={notificationCount} />
+            <FiUsers className="sidebar-icon" />
+            <span>Referral & Share App</span>
           </button>
+      
           <button 
             className="sidebar-btn" 
             onClick={() => {
@@ -268,6 +421,21 @@ useEffect(() => {
             <FiMessageCircle className="sidebar-icon" />
             <span>Chat</span>
           </button>
+          <button
+  className="sidebar-btn notification-btn"
+  onClick={() => {
+    setShowNotifications(true);
+    setSidebarOpen(false);
+  }}
+>
+  <AiFillBell className="sidebar-icon" />
+  <span>Notifications</span>
+
+  {unreadCount > 0 && (
+    <span className="notification-badge">{unreadCount}</span>
+  )}
+</button>
+
         </nav>
 
         <button className="logout-btn" onClick={handleLogout}>
@@ -306,6 +474,56 @@ useEffect(() => {
           </div>
         </div>
       )}
+
+{showNotifications && (
+  <div className="modal-overlay">
+    <div className="notification-modal">
+      <div className="notification-header">
+        <h3>Notifications</h3>
+        <button onClick={() => setShowNotifications(false)}>✕</button>
+      </div>
+
+      {notifications.length === 0 ? (
+        <p className="empty-text">No notifications</p>
+      ) : (
+        <div className="notification-list">
+          {notifications.map(n => {
+            const data = n.data ? JSON.parse(n.data) : {};
+            const isAnnouncement = n.type === 'announcement';
+            
+            return (
+              <div
+                key={n.id}
+                className={`notification-item ${n.is_read ? "read" : "unread"} ${isAnnouncement ? "announcement" : ""}`}
+                onClick={() => {
+                  if (!n.is_read) markNotificationRead(n.id);
+                }}
+              >
+                <div className="notification-content">
+                  {isAnnouncement && (
+                    <div className="notification-type">
+                      <FiBell className="type-icon" />
+                      <span>Announcement</span>
+                    </div>
+                  )}
+                  {data.title && (
+                    <h4 className="notification-title">{data.title}</h4>
+                  )}
+                  <p className="notification-message">{n.message}</p>
+                  <span className="notification-time">
+                    {new Date(n.created_at).toLocaleString()}
+                  </span>
+                </div>
+                {!n.is_read && <div className="unread-dot"></div>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

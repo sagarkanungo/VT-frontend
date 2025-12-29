@@ -14,7 +14,7 @@ function NewEntry() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(5);
 
   // Fetch entries
   useEffect(() => {
@@ -23,13 +23,12 @@ function NewEntry() {
       .then((res) => {
         if (res.data.length === 0) {
           setRows([
-            { entryNumber: "", vehicle: "", amount: "", amount2: "", isNew: true }
+            { entryNumber: "", amount: "", amount2: "", isNew: true }
           ]);
         } else {
           const formatted = res.data.map((item) => ({
             id: item.id,
             entryNumber: String(item.entry_number ?? ""),
-            vehicle: String(item.vehicle ?? ""),
             amount: Number(item.amount ?? 0),
             amount2: Number(item.amount2 ?? 0),
             isNew: false
@@ -39,7 +38,7 @@ function NewEntry() {
       })
       .catch(() =>
         setRows([
-          { entryNumber: "", vehicle: "", amount: "", amount2: "", isNew: true }
+          { entryNumber: "", amount: "", amount2: "", isNew: true }
         ])
       )
       .finally(() => setLoading(false));
@@ -49,7 +48,7 @@ function NewEntry() {
   const addRow = () => {
     setRows([
       ...rows,
-      { entryNumber: "", vehicle: "", amount: "", amount2: "", isNew: true }
+      { entryNumber: "", amount: "", amount2: "", isNew: true }
     ]);
   };
 
@@ -79,7 +78,6 @@ function NewEntry() {
     try {
       const dataToSave = {
         entry_number: entryNum,
-        vehicle: row.vehicle,
         amount: row.amount,
         amount2: row.amount2
       };
@@ -98,7 +96,6 @@ function NewEntry() {
         );
       }
       setRows([...rows]);
-      alert("Saved");
     } catch {
       alert("Save failed");
     }
@@ -152,9 +149,10 @@ function NewEntry() {
         <h3>New Entry</h3>
 
         {/* Table Header */}
+        <div className="entry-table-wrapper">
+
         <div className="entry-header">
           <span>Entry Number</span>
-          <span>Vehicle</span>
           <span>Amount</span>
           <span>Amount 2</span>
           <span>Action</span>
@@ -179,11 +177,7 @@ function NewEntry() {
                 }}
               />
 
-              <input
-                placeholder="Vehicle No"
-                value={row.vehicle}
-                onChange={(e) => handleChange(actualIndex, "vehicle", e.target.value)}
-              />
+            
 
               <input
                 type="number"
@@ -218,6 +212,8 @@ function NewEntry() {
             </div>
           );
         })}
+              </div>
+
 
         {/* Pagination */}
         <Pagination
