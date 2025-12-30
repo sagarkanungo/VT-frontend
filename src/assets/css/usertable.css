@@ -358,6 +358,15 @@
   background-color: #218838;
 }
 
+.btn-primary {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
 .btn-danger {
   background-color: #ff4d4d;
   color: #fff;
@@ -544,6 +553,31 @@
   }
 }
 /* ---------------- EDIT USER MODAL STYLES ---------------- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 .edit-user-modal {
   background: #fff;
   border-radius: 16px;
@@ -625,6 +659,7 @@
 .form-group input::placeholder {
   color: #94a3b8;
 }
+
 
 .file-input {
   background-color: #fff !important;

@@ -11,17 +11,22 @@ function NewEntry() {
   if (!user) window.location.href = "/login";
 
   const userId = user.id;
+
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
 
-  // Fetch entries
+  // 🔹 Calculate per-row total (derived value)
+  const getRowTotal = (row) =>
+    Number(row.amount || 0) + Number(row.amount2 || 0);
+
+  // 🔹 Fetch entries
   useEffect(() => {
     apiClient
       .get(`/api/user/${userId}/entries`)
       .then((res) => {
-        if (res.data.length === 0) {
+        if (!res.data || res.data.length === 0) {
           setRows([
             { entryNumber: "", amount: "", amount2: "", isNew: true }
           ]);
@@ -36,15 +41,15 @@ function NewEntry() {
           setRows(formatted);
         }
       })
-      .catch(() =>
+      .catch(() => {
         setRows([
           { entryNumber: "", amount: "", amount2: "", isNew: true }
-        ])
-      )
+        ]);
+      })
       .finally(() => setLoading(false));
   }, [userId]);
 
-  // Add new row
+  // 🔹 Add new row
   const addRow = () => {
     setRows([
       ...rows,
@@ -58,17 +63,21 @@ function NewEntry() {
     setRows(updated);
   };
 
+  // 🔹 Save row (create / update)
   const handleSave = async (index) => {
     const row = rows[index];
-    
-    // Validate entry number (0-9999)
+
     const entryNum = parseInt(row.entryNumber);
-    if (row.entryNumber === "" || isNaN(entryNum) || entryNum < 0 || entryNum > 9999) {
+    if (
+      row.entryNumber === "" ||
+      isNaN(entryNum) ||
+      entryNum < 0 ||
+      entryNum > 9999
+    ) {
       alert("Entry Number must be between 0 and 9999");
       return;
     }
-    
-    // Check if transactions are allowed before saving
+
     const timeCheck = await isTransactionAllowed();
     if (!timeCheck.allowed) {
       alert(timeCheck.message);
@@ -78,8 +87,9 @@ function NewEntry() {
     try {
       const dataToSave = {
         entry_number: entryNum,
-        amount: row.amount,
-        amount2: row.amount2
+        amount: Number(row.amount || 0),
+        amount2: Number(row.amount2 || 0),
+        total_amount: getRowTotal(row) // ✅ NEW KEY
       };
 
       if (row.isNew) {
@@ -95,18 +105,19 @@ function NewEntry() {
           dataToSave
         );
       }
+
       setRows([...rows]);
-    } catch {
+    } catch (err) {
       alert("Save failed");
     }
   };
 
+  // 🔹 Delete row
   const handleDelete = async (index) => {
     const row = rows[index];
 
     if (rows.length === 1 && row.isNew) return;
 
-    // Check if transactions are allowed before deleting
     const timeCheck = await isTransactionAllowed();
     if (!timeCheck.allowed) {
       alert(timeCheck.message);
@@ -116,119 +127,119 @@ function NewEntry() {
     if (row.isNew) {
       setRows(rows.filter((_, i) => i !== index));
     } else {
-      await apiClient.delete(
-        `/api/entries/${row.id}`
-      );
+      await apiClient.delete(`/api/entries/${row.id}`);
       setRows(rows.filter((_, i) => i !== index));
     }
   };
 
-  // Grand total (amount + amount2)
-  const totalAmount = rows.reduce(
-    (sum, r) =>
-      sum +
-      Number(r.amount || 0) +
-      Number(r.amount2 || 0),
+  // 🔹 Grand total (all entries)
+  const grandTotal = rows.reduce(
+    (sum, r) => sum + getRowTotal(r),
     0
   );
 
-  // Pagination logic
+  // 🔹 Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentRows = rows.slice(indexOfFirstItem, indexOfLastItem);
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
   if (loading) return <div>Loading...</div>;
-//sagar
+
   return (
     <TransactionGuard>
       <div className="new-entry-form">
         <h3>New Entry</h3>
 
-        {/* Table Header */}
         <div className="entry-table-wrapper">
+          {/* Header */}
+          <div className="entry-header">
+            <span>Entry Number</span>
+            <span>Amount</span>
+            <span>Amount 2</span>
+            <span>Total Amount</span>
+            <span>Action</span>
+          </div>
 
-        <div className="entry-header">
-          <span>Entry Number</span>
-          <span>Amount</span>
-          <span>Amount 2</span>
-          <span>Action</span>
+          {/* Rows */}
+          {currentRows.map((row, i) => {
+            const actualIndex = indexOfFirstItem + i;
+
+            return (
+              <div key={row.id ?? actualIndex} className="entry-row">
+                <input
+                  type="number"
+                  placeholder="Entry Number (0-9999)"
+                  value={row.entryNumber}
+                  min="0"
+                  max="9999"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (
+                      value === "" ||
+                      (parseInt(value) >= 0 && parseInt(value) <= 9999)
+                    ) {
+                      handleChange(actualIndex, "entryNumber", value);
+                    }
+                  }}
+                />
+
+                <input
+                  type="number"
+                  placeholder="Amount"
+                  value={row.amount}
+                  onChange={(e) =>
+                    handleChange(actualIndex, "amount", e.target.value)
+                  }
+                />
+
+                <input
+                  type="number"
+                  placeholder="Amount 2"
+                  value={row.amount2}
+                  onChange={(e) =>
+                    handleChange(actualIndex, "amount2", e.target.value)
+                  }
+                />
+
+                {/* ✅ Per Entry Total */}
+                <div className="total-amount-cell">
+                  ₹{getRowTotal(row)}
+                </div>
+
+                <div className="row-actions">
+                  <button
+                    className="btn-primary"
+                    onClick={() => handleSave(actualIndex)}
+                  >
+                    Save
+                  </button>
+                  <button
+                    className="btn-danger"
+                    disabled={rows.length === 1 && row.isNew}
+                    onClick={() => handleDelete(actualIndex)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Rows */}
-        {currentRows.map((row, i) => {
-          const actualIndex = indexOfFirstItem + i; // Calculate actual index for operations
-          return (
-            <div key={row.id ?? actualIndex} className="entry-row">
-              <input
-                type="number"
-                placeholder="Entry Number (0-9999)"
-                value={row.entryNumber}
-                min="0"
-                max="9999"
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value === "" || (parseInt(value) >= 0 && parseInt(value) <= 9999)) {
-                    handleChange(actualIndex, "entryNumber", value);
-                  }
-                }}
-              />
-
-            
-
-              <input
-                type="number"
-                placeholder="Amount"
-                value={row.amount}
-                onChange={(e) =>
-                  handleChange(actualIndex, "amount", (e.target.value))
-                }
-              />
-
-              <input
-                type="number"
-                placeholder="Amount 2"
-                value={row.amount2}
-                onChange={(e) =>
-                  handleChange(actualIndex, "amount2", (e.target.value))
-                }
-              />
-
-              <div className="row-actions">
-                <button className="btn-primary" onClick={() => handleSave(actualIndex)}>
-                  Save
-                </button>
-                <button
-                  className="btn-danger"
-                  disabled={rows.length === 1 && row.isNew}
-                  onClick={() => handleDelete(actualIndex)}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          );
-        })}
-              </div>
-
-
-        {/* Pagination */}
         <Pagination
           currentPage={currentPage}
           totalItems={rows.length}
           itemsPerPage={itemsPerPage}
-          onPageChange={handlePageChange}
+          onPageChange={setCurrentPage}
         />
 
         <button className="btn-secondary add-row-btn" onClick={addRow}>
           + Add Row
         </button>
 
+        {/* ✅ Grand Total */}
         <div className="grand-total">
-          Grand Total: ₹{totalAmount}
+          Grand Total: ₹{grandTotal}
         </div>
       </div>
     </TransactionGuard>

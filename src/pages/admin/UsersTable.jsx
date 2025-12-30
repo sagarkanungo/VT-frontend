@@ -7,7 +7,6 @@ import '../../assets/css/usertable.css'
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,8 +30,7 @@ const AdminDashboard = () => {
     try {
       const res = await apiClient.get("/api/admin/users");
 
-      // Separate admin from others
-      const adminUser = res.data.find(u => u.role === "admin");
+      // Filter out admin users, only show normal users
       const normalUsers = res.data.filter(u => u.role !== "admin");
 
       // Fetch balances
@@ -49,7 +47,6 @@ const AdminDashboard = () => {
         })
       );
 
-      setAdmin(adminUser);
       setUsers(usersWithBalance);
       setFilteredUsers(usersWithBalance);
     } catch (err) {
@@ -95,6 +92,27 @@ const AdminDashboard = () => {
       alert("Failed to delete user");
     }
   };
+
+  const payUser = async (userId, userFullName) => {
+    const amount = prompt(`Enter amount to pay ${userFullName}:`);
+    if (!amount) return;
+
+    try {
+      // Using direct payment flag as supported by backend
+      await apiClient.post("/api/admin/send-money", { 
+        user_id: userId, 
+        amount: amount,
+        direct_payment: true // This flag tells backend it's a direct payment
+      });
+      
+      alert("Payment successful!");
+      fetchUsers(); // Refresh the user list to show updated balance
+    } catch (err) {
+      console.error(err);
+      alert("Failed to pay");
+    }
+  };
+
 
   const toggleBlockUser = async (userId, block) => {
     try {
@@ -176,12 +194,12 @@ const AdminDashboard = () => {
               <th>Pin</th>
               <th>ID Document</th>
               {/* <th>Status</th> */}
-              <th width="220">Actions</th>
+              <th width="280">Actions</th>
             </tr>
           </thead>
           <tbody>
             {currentUsers.length === 0 ? (
-              <tr><td colSpan="9">No users available</td></tr>
+              <tr><td colSpan="8">No users available</td></tr>
             ) : currentUsers.map(u => (
               <tr key={u.id}>
                 <td>{u.id}</td>
@@ -205,6 +223,7 @@ const AdminDashboard = () => {
                 <td>
                   <div className="action-buttons">
                     <button className="btn btn-primary btn-sm me-2" onClick={() => openEditForm(u)}>Edit</button>
+                    <button className="btn btn-success btn-sm me-2" onClick={() => payUser(u.id, u.full_name)}>Pay</button>
                     <button className="btn btn-danger btn-sm me-2" onClick={() => deleteUser(u.id)}>Delete</button>
                     <button className={`btn btn-${u.is_blocked ? "success" : "warning"} btn-sm`} onClick={() => toggleBlockUser(u.id, !u.is_blocked)}>
                       {u.is_blocked ? "Unblock" : "Block"}
@@ -284,27 +303,50 @@ const AdminDashboard = () => {
                 </div>
               </div>
               
-              <div className="form-group">
-                <label>
-                  <span className="label-text">ID Document</span>
-                </label>
-                <input 
-                  type="file" 
-                  name="id_document" 
-                  onChange={handleEditChange}
-                  accept="image/*"
-                  className="file-input"
-                />
-                {editFormData.id_document && !(editFormData.id_document instanceof File) && (
-                  <div className="current-document">
-                    <img 
-                      src={`${BACKEND_URL}/${editFormData.id_document}`} 
-                      alt="Current Document" 
-                      className="document-preview"
-                    />
-                    <span className="document-label">Current Document</span>
-                  </div>
-                )}
+              <div className="form-row">
+                <div className="form-group">
+                  <label>
+                    <span className="label-text">Balance (₹)</span>
+                  </label>
+                  <input 
+                    type="number" 
+                    name="balance" 
+                    value={editFormData.balance} 
+                    onChange={handleEditChange}
+                    placeholder="Enter balance amount"
+                    min="0"
+                    step="0.01"
+                  />
+                  <small className="balance-note">
+                    Current: ₹{editingUser.balance.toLocaleString()} | 
+                    Admin can directly add/modify user balance
+                  </small>
+                </div>
+              </div>
+              
+              <div className="form-row">
+                <div className="form-group">
+                  <label>
+                    <span className="label-text">ID Document</span>
+                  </label>
+                  <input 
+                    type="file" 
+                    name="id_document" 
+                    onChange={handleEditChange}
+                    accept="image/*"
+                    className="file-input"
+                  />
+                  {editFormData.id_document && !(editFormData.id_document instanceof File) && (
+                    <div className="current-document">
+                      <img 
+                        src={`${BACKEND_URL}/${editFormData.id_document}`} 
+                        alt="Current Document" 
+                        className="document-preview"
+                      />
+                      <span className="document-label">Current Document</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             
