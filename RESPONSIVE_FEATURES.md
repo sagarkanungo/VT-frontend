@@ -1,7 +1,7 @@
 # Responsive Design Features
 
 ## 🎯 Overview
-Your VT App has been upgraded with a modern, responsive design featuring:
+Your Breetta has been upgraded with a modern, responsive design featuring:
 
 ## ✨ New Features
 

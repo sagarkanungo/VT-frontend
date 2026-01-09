@@ -19,8 +19,8 @@ function App() {
   return (
     <div className={`app-container ${isAuthPage ? "center-form" : ""}`}>
       <header className={`app-header ${isDashboardPage ? "dashboard-header" : ""}`}>
-        <div className="logo">💸 VT App</div>
-        <p className="welcome-text">Welcome to Virtual Transaction App</p>
+        <div className="logo">💸 Breetta </div>
+        <p className="welcome-text">Welcome to Breetta Transaction App</p>
       </header>
 
       <main className="app-main">

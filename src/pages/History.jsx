@@ -127,7 +127,7 @@ function History() {
               <tr key={t.id}>
                 <td>{t.id}</td>
                 <td>{t.message || t.description}</td>
-                <td>₹{t.amount}</td>
+                <td>{t.amount}</td>
                 <td>{new Date(t.created_at).toLocaleString()}</td>
               </tr>
             ))

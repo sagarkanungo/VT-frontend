@@ -67,7 +67,7 @@ const AdminDashboard = () => {
         <button className="hamburger-btn" onClick={toggleSidebar}>
           {sidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
         </button>
-        <h2>Admin Panel</h2>
+        <h2>Breetta</h2>
       </div>
 
       {/* Sidebar Overlay for mobile */}
@@ -76,7 +76,7 @@ const AdminDashboard = () => {
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-header">
-          <h2>Admin Panel</h2>
+          <h2>Breetta</h2>
           <p>Welcome, {user?.full_name}</p>
         </div>
 

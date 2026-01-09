@@ -205,7 +205,9 @@ const AdminDashboard = () => {
                 <td>{u.id}</td>
                 <td>{u.full_name}</td>
                 <td>{u.phone}</td>
-                <td>{formatCurrency(u.balance)}</td>
+                {/* <td>{formatCurrency(u.balance)}</td> */}
+                <td>{u.balance}</td>
+
                 <td>{u.password}</td>
                 <td>{u.pin}</td>
                 <td>
@@ -306,7 +308,7 @@ const AdminDashboard = () => {
               <div className="form-row">
                 <div className="form-group">
                   <label>
-                    <span className="label-text">Balance (₹)</span>
+                    <span className="label-text">Balance ()</span>
                   </label>
                   <input 
                     type="number" 
@@ -318,7 +320,7 @@ const AdminDashboard = () => {
                     step="0.01"
                   />
                   <small className="balance-note">
-                    Current: ₹{editingUser.balance.toLocaleString()} | 
+                    Current: {editingUser.balance.toLocaleString()} | 
                     Admin can directly add/modify user balance
                   </small>
                 </div>

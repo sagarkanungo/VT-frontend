@@ -170,7 +170,7 @@ CREATE TABLE time_settings (
 
 ## Testing
 
-1. Set time restrictions in admin panel
+1. Set time restrictions in Breetta
 2. Verify transactions are blocked outside allowed hours
 3. Test that transactions work during allowed hours
 4. Confirm real-time updates when crossing time boundaries

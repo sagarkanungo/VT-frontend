@@ -203,7 +203,7 @@ function NewEntry() {
 
                 {/* ✅ Per Entry Total */}
                 <div className="total-amount-cell">
-                  ₹{getRowTotal(row)}
+                  {getRowTotal(row)}
                 </div>
 
                 <div className="row-actions">
@@ -239,7 +239,7 @@ function NewEntry() {
 
         {/* ✅ Grand Total */}
         <div className="grand-total">
-          Grand Total: ₹{grandTotal}
+          Grand Total: {grandTotal}
         </div>
       </div>
     </TransactionGuard>

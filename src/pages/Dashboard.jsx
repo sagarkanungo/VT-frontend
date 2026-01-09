@@ -122,7 +122,7 @@ const checkTransactionStatus = async () => {
     try {
       await apiClient.post("/api/request-money", {
         user_id: userId,
-        message: `₹${amount} - ${message}`,
+        message: `${amount} - ${message}`,
       });
       alert("Request sent to admin");
       setAmount("");
@@ -189,15 +189,15 @@ const checkTransactionStatus = async () => {
         return (
           <div className="referral-section">
             <div className="referral-header">
-              <h2>Share VT App</h2>
-              <p>Invite your friends to join VT App!</p>
+              <h2>Share Breetta</h2>
+              <p>Invite your friends to join Breetta!</p>
             </div>
 
             {/* App Info */}
             <div className="app-info-card">
               <div className="app-icon">💸</div>
               <div className="app-details">
-                <h3>VT App</h3>
+                <h3>Breetta</h3>
                 <p>The best app for managing your transactions and entries</p>
               </div>
             </div>
@@ -207,14 +207,14 @@ const checkTransactionStatus = async () => {
               <h3>Share Message</h3>
               <div className="message-container">
                 <textarea 
-                  value="Hey! Check out VT App - it's amazing for managing transactions and entries. Download it now!"
+                  value="Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!"
                   readOnly 
                   className="share-message-input"
                   rows="3"
                 />
                 <button 
                   className="copy-btn"
-                  onClick={() => copyToClipboard("Hey! Check out VT App - it's amazing for managing transactions and entries. Download it now!")}
+                  onClick={() => copyToClipboard("Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!")}
                 >
                   {copySuccess ? <FiCheck /> : <FiCopy />}
                 </button>
@@ -227,31 +227,31 @@ const checkTransactionStatus = async () => {
               <div className="share-options">
                 <button 
                   className="share-btn whatsapp"
-                  onClick={() => window.open(`https://wa.me/?text=Hey! Check out VT App - it's amazing for managing transactions and entries. Download it now!`, '_blank')}
+                  onClick={() => window.open(`https://wa.me/?text=Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!`, '_blank')}
                 >
                   📱 WhatsApp
                 </button>
                 <button 
                   className="share-btn telegram"
-                  onClick={() => window.open(`https://t.me/share/url?text=Hey! Check out VT App - it's amazing for managing transactions and entries. Download it now!`, '_blank')}
+                  onClick={() => window.open(`https://t.me/share/url?text=Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!`, '_blank')}
                 >
                   ✈️ Telegram
                 </button>
                 <button 
                   className="share-btn facebook"
-                  onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${window.location.origin}&quote=Hey! Check out VT App - it's amazing for managing transactions and entries.`, '_blank')}
+                  onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${window.location.origin}&quote=Hey! Check out Breetta - it's amazing for managing transactions and entries.`, '_blank')}
                 >
                   📘 Facebook
                 </button>
                 <button 
                   className="share-btn twitter"
-                  onClick={() => window.open(`https://twitter.com/intent/tweet?text=Hey! Check out VT App - it's amazing for managing transactions and entries. Download it now!`, '_blank')}
+                  onClick={() => window.open(`https://twitter.com/intent/tweet?text=Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!`, '_blank')}
                 >
                   🐦 Twitter
                 </button>
                 <button 
                   className="share-btn copy"
-                  onClick={() => copyToClipboard("Hey! Check out VT App - it's amazing for managing transactions and entries. Download it now!")}
+                  onClick={() => copyToClipboard("Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!")}
                 >
                   📋 Copy Message
                 </button>
@@ -260,7 +260,7 @@ const checkTransactionStatus = async () => {
 
             {/* Why Share */}
             <div className="why-share">
-              <h3>Why Share VT App?</h3>
+              <h3>Why Share Breetta?</h3>
               <div className="benefits">
                 <div className="benefit">
                   <div className="benefit-icon">✨</div>
@@ -304,7 +304,7 @@ const checkTransactionStatus = async () => {
 
             <div className="card balance-card">
               <h3>Total Balance</h3>
-              <p>₹{totalBalance.toLocaleString() || 1000}</p>
+              <p>{totalBalance.toLocaleString() || 1000}</p>
             </div>
 
             <div
@@ -356,7 +356,7 @@ const checkTransactionStatus = async () => {
         <button className="hamburger-btn" onClick={toggleSidebar}>
           {sidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
         </button>
-        <h2>💸 VT App</h2>
+        <h2>💸 Breetta</h2>
       </div>
 
       {/* Sidebar Overlay for mobile */}
@@ -365,7 +365,7 @@ const checkTransactionStatus = async () => {
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-header">
-          <h2>💸 VT App</h2>
+          <h2>💸 Breetta</h2>
           <p>Welcome, {userName}</p>
         </div>
 
