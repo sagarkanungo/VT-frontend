@@ -20,25 +20,29 @@ function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPin, setShowPin] = useState(false);
 
+  // 🔹 File input validation for images only
   const handleChange = (e) => {
-    if (e.target.name === "id_document") {
-      setForm({ ...form, id_document: e.target.files[0] });
+    const { name, files, value } = e.target;
+
+    if (name === "id_document") {
+      const file = files[0];
+      if (!file) return;
+
+      // Only allow image files
+      if (!file.type.startsWith("image/")) {
+        alert("Only image files are allowed (png, jpg, jpeg)");
+        return;
+      }
+
+      setForm(prev => ({ ...prev, id_document: file }));
     } else {
-      setForm({ ...form, [e.target.name]: e.target.value });
+      setForm(prev => ({ ...prev, [name]: value }));
     }
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
-  };
-
-  const togglePinVisibility = () => {
-    setShowPin(!showPin);
-  };
+  const togglePasswordVisibility = () => setShowPassword(!showPassword);
+  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
+  const togglePinVisibility = () => setShowPin(!showPin);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,10 +52,11 @@ function Register() {
     }
 
     const data = new FormData();
-    Object.keys(form).forEach((key) => data.append(key, form[key]));
+    Object.keys(form).forEach(key => data.append(key, form[key]));
 
     try {
       await apiClient.post("/api/register", data);
+      alert("Registration successful!");
       navigate("/login");
     } catch (err) {
       alert(err.response?.data?.error || "Registration failed");
@@ -90,11 +95,7 @@ function Register() {
             onChange={handleChange}
             required
           />
-          <button
-            type="button"
-            className="password-toggle-btn"
-            onClick={togglePasswordVisibility}
-          >
+          <button type="button" className="password-toggle-btn" onClick={togglePasswordVisibility}>
             {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
           </button>
         </div>
@@ -108,11 +109,7 @@ function Register() {
             onChange={handleChange}
             required
           />
-          <button
-            type="button"
-            className="password-toggle-btn"
-            onClick={toggleConfirmPasswordVisibility}
-          >
+          <button type="button" className="password-toggle-btn" onClick={toggleConfirmPasswordVisibility}>
             {showConfirmPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
           </button>
         </div>
@@ -127,18 +124,20 @@ function Register() {
             onChange={handleChange}
             required
           />
-          <button
-            type="button"
-            className="password-toggle-btn"
-            onClick={togglePinVisibility}
-          >
+          <button type="button" className="password-toggle-btn" onClick={togglePinVisibility}>
             {showPin ? <FiEyeOff size={18} /> : <FiEye size={18} />}
           </button>
         </div>
 
         <div className="file-input">
-          <label>Upload Valid ID</label>
-          <input type="file" name="id_document" onChange={handleChange} required/>
+          <label>Upload Valid ID (PNG, JPG, JPEG)</label>
+          <input
+            type="file"
+            name="id_document"
+            accept="image/png, image/jpeg, image/jpg"
+            onChange={handleChange}
+            required
+          />
         </div>
 
         <button type="submit" className="btn-primary">
@@ -146,8 +145,7 @@ function Register() {
         </button>
 
         <p className="switch-text">
-          Already have an account?{" "}
-          <span onClick={() => navigate("/login")}>Login</span>
+          Already have an account? <span onClick={() => navigate("/login")}>Login</span>
         </p>
       </form>
     </div>

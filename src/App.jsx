@@ -10,7 +10,9 @@ function App() {
 
   // Auth pages (centered)
   const isAuthPage =
-    location.pathname === "/" || location.pathname === "/login";
+  location.pathname === "/" ||
+  location.pathname === "/login" ||
+  location.pathname === "/register";
 
   // Dashboard pages (hide main header on mobile)
   const isDashboardPage = 
@@ -25,7 +27,8 @@ function App() {
 
       <main className="app-main">
         <Routes>
-          <Route path="/" element={<Register />} />
+        <Route path="/" element={<Login />} /> 
+          <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />

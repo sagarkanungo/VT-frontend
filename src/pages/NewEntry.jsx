@@ -4,72 +4,67 @@ import { getUserFromToken } from "../../utils/auth";
 import { isTransactionAllowed } from "../../utils/timeUtils";
 import TransactionGuard from "../components/TransactionGuard";
 import Pagination from "../components/Pagination";
-import "../assets/css/dashboard.css";
+import "../assets/css/newEntry.css";
 
-function NewEntry() {
+function NewEntry({ onEntrySuccess }) {
   const user = getUserFromToken();
   if (!user) window.location.href = "/login";
-
   const userId = user.id;
 
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [form, setForm] = useState({
+    entryNumber: "",
+    amount: ""
+  });
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const itemsPerPage = 5;
 
-  // 🔹 Calculate per-row total (derived value)
-  const getRowTotal = (row) =>
-    Number(row.amount || 0) + Number(row.amount2 || 0);
+  const getRowTotal = (row) => Number(row.amount || 0);
 
-  // 🔹 Fetch entries
+  // 🔹 Date formatter
+  const formatDateTime = (dateStr) => {
+    if (!dateStr) return "-";
+    const d = new Date(dateStr);
+    return d.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true
+    });
+  };
+
+  // 🔹 Fetch history
   useEffect(() => {
     apiClient
       .get(`/api/user/${userId}/entries`)
       .then((res) => {
-        if (!res.data || res.data.length === 0) {
-          setRows([
-            { entryNumber: "", amount: "", amount2: "", isNew: true }
-          ]);
-        } else {
-          const formatted = res.data.map((item) => ({
-            id: item.id,
-            entryNumber: String(item.entry_number ?? ""),
-            amount: Number(item.amount ?? 0),
-            amount2: Number(item.amount2 ?? 0),
-            isNew: false
-          }));
-          setRows(formatted);
+
+        if (Array.isArray(res.data)) {
+          setRows(
+            res.data.map((item) => ({
+              
+              id: item.id,
+              entryNumber: String(item.entry_number ?? ""),
+              amount: Number(item.amount ?? 0),
+              createdAt: item.created_at
+            }))
+          );
         }
-      })
-      .catch(() => {
-        setRows([
-          { entryNumber: "", amount: "", amount2: "", isNew: true }
-        ]);
       })
       .finally(() => setLoading(false));
   }, [userId]);
 
-  // 🔹 Add new row
-  const addRow = () => {
-    setRows([
-      ...rows,
-      { entryNumber: "", amount: "", amount2: "", isNew: true }
-    ]);
-  };
-
-  const handleChange = (index, field, value) => {
-    const updated = [...rows];
-    updated[index][field] = value;
-    setRows(updated);
-  };
-
-  // 🔹 Save row (create / update)
-  const handleSave = async (index) => {
-    const row = rows[index];
-
-    const entryNum = parseInt(row.entryNumber);
+  // 🔹 Save entry
+  const handleSave = async () => {
+    const entryNum = parseInt(form.entryNumber);
+  
     if (
-      row.entryNumber === "" ||
+      form.entryNumber === "" ||
       isNaN(entryNum) ||
       entryNum < 0 ||
       entryNum > 9999
@@ -77,68 +72,62 @@ function NewEntry() {
       alert("Entry Number must be between 0 and 9999");
       return;
     }
-
+  
     const timeCheck = await isTransactionAllowed();
     if (!timeCheck.allowed) {
       alert(timeCheck.message);
       return;
     }
-
+  
     try {
-      const dataToSave = {
+      const payload = {
         entry_number: entryNum,
-        amount: Number(row.amount || 0),
-        amount2: Number(row.amount2 || 0),
-        total_amount: getRowTotal(row) // ✅ NEW KEY
+        amount: Number(form.amount || 0),
+        total_amount: Number(form.amount || 0)
       };
-
-      if (row.isNew) {
-        const res = await apiClient.post(
-          `/api/user/${userId}/entries`,
-          dataToSave
-        );
-        row.id = res.data.id;
-        row.isNew = false;
-      } else {
-        await apiClient.put(
-          `/api/entries/${row.id}`,
-          dataToSave
-        );
+  
+      const res = await apiClient.post(
+        `/api/user/${userId}/entries`,
+        payload
+      );
+      // ✅ latest entry first
+      setRows(prev => [
+        {
+          id: res.data.id,
+          entryNumber: String(entryNum),
+          amount: payload.amount,
+          createdAt: res.data.created_at || new Date().toISOString()
+        },
+        ...prev
+      ]);
+  
+      // ✅ always show on first page
+      setCurrentPage(1);
+  
+      if (onEntrySuccess) {
+        onEntrySuccess(); // dashboard balance refresh
       }
-
-      setRows([...rows]);
+  
+      setForm({ entryNumber: "", amount: "" });
+      alert("Entry created successfully");
     } catch (err) {
-      alert("Save failed");
+      console.error("API error:", err);
+    
+      if (err.response && err.response.data && err.response.data.error) {
+        alert(err.response.data.error); // now shows "Insufficient balance" or other backend errors
+      } else {
+        alert("Save failed"); // fallback for network or unknown errors
+      }
     }
+    
   };
+  
 
-  // 🔹 Delete row
-  const handleDelete = async (index) => {
-    const row = rows[index];
-
-    if (rows.length === 1 && row.isNew) return;
-
-    const timeCheck = await isTransactionAllowed();
-    if (!timeCheck.allowed) {
-      alert(timeCheck.message);
-      return;
-    }
-
-    if (row.isNew) {
-      setRows(rows.filter((_, i) => i !== index));
-    } else {
-      await apiClient.delete(`/api/entries/${row.id}`);
-      setRows(rows.filter((_, i) => i !== index));
-    }
-  };
-
-  // 🔹 Grand total (all entries)
   const grandTotal = rows.reduce(
     (sum, r) => sum + getRowTotal(r),
     0
   );
 
-  // 🔹 Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentRows = rows.slice(indexOfFirstItem, indexOfLastItem);
@@ -150,80 +139,50 @@ function NewEntry() {
       <div className="new-entry-form">
         <h3>New Entry</h3>
 
+        {/* 🔹 FORM */}
+        <div className="entry-form-box">
+          <input
+            type="number"
+            placeholder="Entry Number (0-9999)"
+            value={form.entryNumber}
+            min="0"
+            max="9999"
+            onChange={(e) =>
+              setForm({ ...form, entryNumber: e.target.value })
+            }
+          />
+
+          <input
+            type="number"
+            placeholder="Amount"
+            value={form.amount}
+            onChange={(e) =>
+              setForm({ ...form, amount: e.target.value })
+            }
+          />
+
+          <button className="btn-primary" onClick={handleSave}>
+            Save Entry
+          </button>
+        </div>
+
+        {/* 🔹 HISTORY */}
         <div className="entry-table-wrapper">
-          {/* Header */}
           <div className="entry-header">
             <span>Entry Number</span>
-            <span>Amount</span>
-            <span>Amount 2</span>
+            <span>Date / Time</span>
             <span>Total Amount</span>
-            <span>Action</span>
           </div>
 
-          {/* Rows */}
-          {currentRows.map((row, i) => {
-            const actualIndex = indexOfFirstItem + i;
-
-            return (
-              <div key={row.id ?? actualIndex} className="entry-row">
-                <input
-                  type="number"
-                  placeholder="Entry Number (0-9999)"
-                  value={row.entryNumber}
-                  min="0"
-                  max="9999"
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (
-                      value === "" ||
-                      (parseInt(value) >= 0 && parseInt(value) <= 9999)
-                    ) {
-                      handleChange(actualIndex, "entryNumber", value);
-                    }
-                  }}
-                />
-
-                <input
-                  type="number"
-                  placeholder="Amount"
-                  value={row.amount}
-                  onChange={(e) =>
-                    handleChange(actualIndex, "amount", e.target.value)
-                  }
-                />
-
-                <input
-                  type="number"
-                  placeholder="Amount 2"
-                  value={row.amount2}
-                  onChange={(e) =>
-                    handleChange(actualIndex, "amount2", e.target.value)
-                  }
-                />
-
-                {/* ✅ Per Entry Total */}
-                <div className="total-amount-cell">
-                  {getRowTotal(row)}
-                </div>
-
-                <div className="row-actions">
-                  <button
-                    className="btn-primary"
-                    onClick={() => handleSave(actualIndex)}
-                  >
-                    Save
-                  </button>
-                  <button
-                    className="btn-danger"
-                    disabled={rows.length === 1 && row.isNew}
-                    onClick={() => handleDelete(actualIndex)}
-                  >
-                    Delete
-                  </button>
-                </div>
+          {currentRows.map((row) => (
+            <div key={row.id} className="entry-row">
+              <div>{row.entryNumber}</div>
+              <div>{formatDateTime(row.createdAt)}</div>
+              <div className="total-amount-cell">
+                {getRowTotal(row)}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
 
         <Pagination
@@ -233,11 +192,6 @@ function NewEntry() {
           onPageChange={setCurrentPage}
         />
 
-        <button className="btn-secondary add-row-btn" onClick={addRow}>
-          + Add Row
-        </button>
-
-        {/* ✅ Grand Total */}
         <div className="grand-total">
           Grand Total: {grandTotal}
         </div>

@@ -10,7 +10,7 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
    const user = getUserFromToken();
-  console.log('user',user)
+  ('user',user)
 
 
   const handleChange = e =>
@@ -96,7 +96,7 @@ function Login() {
           </button>
            <p className="switch-text">
           Don`t have an account?{" "}
-          <span onClick={() => navigate("/")}>Register</span>
+          <span onClick={() => navigate("/register")}>Register</span>
         </p>
         </form>
       </div>

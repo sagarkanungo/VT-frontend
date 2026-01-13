@@ -5,15 +5,12 @@ import "../../assets/css/analytics.css";
 
 const Analytics = () => {
   const [data, setData] = useState({
-    highActive: [],
-    midActive: [],
+    active: [],
     inactive: [],
   });
-
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("highActive");
-
-  // 🔥 Entry details states
+  const [activeTab, setActiveTab] = useState("active");
+  const [sortOrder, setSortOrder] = useState("desc"); // desc = high to low
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [entryDetails, setEntryDetails] = useState(null);
   const [detailsLoading, setDetailsLoading] = useState(false);
@@ -34,6 +31,7 @@ const Analytics = () => {
         entryMap[item.entryNumber] = item.totalAmount;
       });
 
+      // All entries from 0 to 9999
       const allEntries = Array.from({ length: 10000 }, (_, i) => ({
         entryNumber: i,
         totalAmount: entryMap[i] || 0,
@@ -42,57 +40,22 @@ const Analytics = () => {
       const inactive = allEntries.filter((e) => e.totalAmount === 0);
       const active = allEntries.filter((e) => e.totalAmount > 0);
 
-      const sortedActive = [...active].sort(
-        (a, b) => b.totalAmount - a.totalAmount
-      );
-
-      const highActive = sortedActive.slice(0, 5);
-      const midActive = sortedActive.slice(5, 10);
-
-      setData({ highActive, midActive, inactive });
+      setData({ active, inactive });
     } catch (err) {
       console.error("Analytics error:", err);
-      setData({ highActive: [], midActive: [], inactive: [] });
+      setData({ active: [], inactive: [] });
     } finally {
       setLoading(false);
     }
   };
 
-  // ================= DOWNLOAD FUNCTIONALITY =================
-  const downloadUserList = () => {
-    if (!entryDetails || !entryDetails.users || entryDetails.users.length === 0) {
-      alert("No user data to download");
-      return;
-    }
+  // ================= SORT ACTIVE =================
+  const sortedActive = [...data.active].sort((a, b) =>
+    sortOrder === "desc"
+      ? b.totalAmount - a.totalAmount
+      : a.totalAmount - b.totalAmount
+  );
 
-    // Prepare CSV data with Entry Number
-    const csvHeaders = ["Entry Number", "Name", "Mobile", "Amount"];
-    const csvData = entryDetails.users.map((user) => [
-      String(entryDetails.entryNumber).padStart(4, "0"), // Entry Number with leading zeros
-      user.name,
-      user.mobile,
-      user.amount
-    ]);
-
-    // Create CSV content
-    const csvContent = [
-      csvHeaders.join(","),
-      ...csvData.map(row => row.join(","))
-    ].join("\n");
-
-    // Create and download file
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    
-    link.setAttribute("href", url);
-    link.setAttribute("download", `entry-${String(entryDetails.entryNumber).padStart(4, "0")}-users.csv`);
-    link.style.visibility = "hidden";
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
   // ================= FETCH ENTRY DETAILS =================
   const openEntryDetails = async (entryNumber) => {
     setSelectedEntry(entryNumber);
@@ -111,6 +74,42 @@ const Analytics = () => {
     }
   };
 
+  // ================= DOWNLOAD CSV =================
+  const downloadUserList = () => {
+    if (
+      !entryDetails ||
+      !entryDetails.users ||
+      entryDetails.users.length === 0
+    ) {
+      alert("No user data to download");
+      return;
+    }
+
+    const csvHeaders = ["Entry Number", "Name", "Mobile", "Amount"];
+    const csvData = entryDetails.users.map((user) => [
+      String(entryDetails.entryNumber).padStart(4, "0"),
+      user.name,
+      user.mobile,
+      user.amount,
+    ]);
+
+    const csvContent = [
+      csvHeaders.join(","),
+      ...csvData.map((row) => row.join(",")),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.setAttribute("href", URL.createObjectURL(blob));
+    link.setAttribute(
+      "download",
+      `entry-${String(entryDetails.entryNumber).padStart(4, "0")}-users.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) {
     return (
       <div className="analytics-container">
@@ -118,8 +117,6 @@ const Analytics = () => {
       </div>
     );
   }
-
-  console.log("entryDetails", entryDetails);
 
   return (
     <div className="analytics-container">
@@ -135,23 +132,11 @@ const Analytics = () => {
       <div className="analytics-section">
         <div className="tab-navigation">
           <button
-            className={`tab-button ${
-              activeTab === "highActive" ? "active" : ""
-            }`}
-            onClick={() => setActiveTab("highActive")}
+            className={`tab-button ${activeTab === "active" ? "active" : ""}`}
+            onClick={() => setActiveTab("active")}
           >
-            🔥 Most Active
-            <span className="tab-count">{data.highActive.length}</span>
-          </button>
-
-          <button
-            className={`tab-button ${
-              activeTab === "midActive" ? "active" : ""
-            }`}
-            onClick={() => setActiveTab("midActive")}
-          >
-            ⚡ Low Active
-            <span className="tab-count">{data.midActive.length}</span>
+            ⚡ Active
+            <span className="tab-count">{data.active.length}</span>
           </button>
 
           <button
@@ -164,52 +149,73 @@ const Analytics = () => {
         </div>
 
         <div className="tab-content">
-          {/* ================= HIGH + MID ACTIVE ================= */}
-          {activeTab !== "inactive" && (
-            <div className="entry-category-section">
-              <div className="category-header">
-                <h3>
-                  {activeTab === "highActive"
-                    ? "🏆 Most Active Entry Numbers"
-                    : "⚡ Mid Active Entry Numbers"}
-                </h3>
+          {/* ================= ACTIVE ================= */}
+          {activeTab === "active" && (
+            <>
+              <div style={{ marginBottom: "1rem", textAlign: "right" }}>
+                <button
+                  onClick={() =>
+                    setSortOrder(sortOrder === "desc" ? "asc" : "desc")
+                  }
+                  className="refresh-btn"
+                  style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
+                >
+                  Sort: {sortOrder === "desc" ? "High → Low" : "Low → High"}
+                </button>
               </div>
 
-              <div className="entries-grid">
-                {data[activeTab].map((entry, index) => (
-                  <div
-                    key={entry.entryNumber}
-                    className={`entry-card ${
-                      activeTab === "highActive" ? "most-active" : "mid-active"
-                    }`}
-                    onClick={() => openEntryDetails(entry.entryNumber)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className="entry-rank">#{index + 1}</div>
-
-                    <div className="entry-details">
-                      <h4>{String(entry.entryNumber).padStart(4, "0")}</h4>
-                      <p>Entry Number</p>
+              <div className="active-entries-rows scrollable">
+                <div className="row header">
+                  <div className="cell">Entry Number</div>
+                  <div className="cell">Total Amount</div>
+                  <div className="cell">Action</div>
+                </div>
+                {sortedActive.map((entry) => (
+                  <div key={entry.entryNumber} className="row">
+                    <div className="cell">
+                      {String(entry.entryNumber).padStart(4, "0")}
                     </div>
-
-                    <div className="entry-stats">
-                      <span>{entry.totalAmount.toLocaleString()}</span>
+                    <div className="cell">
+                      {entry.totalAmount.toLocaleString()}
+                    </div>
+                    <div className="cell">
+                      <button
+                        className="view-btn"
+                        onClick={() => openEntryDetails(entry.entryNumber)}
+                      >
+                        View
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </>
           )}
 
           {/* ================= INACTIVE ================= */}
           {activeTab === "inactive" && (
-            <div className="inactive-grid scrollable">
-              {data.inactive.map((entry) => (
-                <div key={entry.entryNumber} className="inactive-entry-card">
-                  {String(entry.entryNumber).padStart(4, "0")}
-                </div>
-              ))}
-            </div>
+           <div className="inactive-entries-rows scrollable">
+           <div className="row header">
+             <div className="cell">Entry Number</div>
+             <div className="cell">Total Amount</div>
+             <div className="cell">Action</div>
+           </div>
+           {data.inactive.map((entry) => (
+             <div key={entry.entryNumber} className="row">
+               <div className="cell">{String(entry.entryNumber).padStart(4, "0")}</div>
+               <div className="cell">{entry.totalAmount.toLocaleString()}</div>
+               <div className="cell">
+                 <button
+                   className="view-btn"
+                   onClick={() => openEntryDetails(entry.entryNumber)}
+                 >
+                   View
+                 </button>
+               </div>
+             </div>
+           ))}
+         </div>
+         
           )}
         </div>
       </div>
@@ -234,7 +240,7 @@ const Analytics = () => {
                     Entry Number:{" "}
                     {String(entryDetails.entryNumber).padStart(4, "0")}
                   </h2>
-                  <button 
+                  <button
                     className="download-btn"
                     onClick={downloadUserList}
                     title="Download user list as CSV"
@@ -248,7 +254,7 @@ const Analytics = () => {
                     <strong>Total Users:</strong> {entryDetails.totalUsers}
                   </p>
                   <p>
-                    <strong>Total Amount:</strong> 
+                    <strong>Total Amount:</strong>{" "}
                     {entryDetails.totalAmount.toLocaleString()}
                   </p>
                 </div>
@@ -275,7 +281,7 @@ const Analytics = () => {
                 </table>
               </>
             ) : (
-              <p>No details found</p>
+              <p style={{ padding: "1rem" }}>No details found</p>
             )}
           </div>
         </div>

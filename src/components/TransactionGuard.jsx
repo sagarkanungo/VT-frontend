@@ -35,10 +35,10 @@ const TransactionGuard = ({ children, onStatusChange }) => {
   }, [transactionStatus.allowed, onStatusChange]);
 
   const checkTransactionStatus = async () => {
-    console.log('🛡️ TransactionGuard: Checking transaction status...');
+    ('🛡️ TransactionGuard: Checking transaction status...');
     try {
       const status = await isTransactionAllowed();
-      console.log('🛡️ TransactionGuard: Status received:', status);
+      ('🛡️ TransactionGuard: Status received:', status);
       setTransactionStatus(status);
     } catch (error) {
       console.error('🛡️ TransactionGuard: Error checking transaction status:', error);

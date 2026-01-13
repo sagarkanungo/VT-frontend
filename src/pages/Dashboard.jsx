@@ -40,7 +40,7 @@ const [unreadCount, setUnreadCount] = useState(0);
 const [showNotifications, setShowNotifications] = useState(false);
 
   const user = getUserFromToken();
-  console.log('user',user)
+  ('user',user)
   if (!user) window.location.href = "/login";
 
   const userId = user.id;
@@ -180,7 +180,7 @@ const checkTransactionStatus = async () => {
   const renderSection = () => {
     switch (activeSection) {
       case "newEntry":
-        return <NewEntry />;
+        return <NewEntry onEntrySuccess={fetchBalance} />;
       case "transfer":
         return <Transfer onTransferSuccess={fetchBalance}  />;
       case "history":
