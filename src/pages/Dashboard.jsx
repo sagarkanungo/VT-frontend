@@ -3,12 +3,13 @@ import apiClient from "../../utils/axios";
 import "../assets/css/dashboard.css";
 import { getUserFromToken } from "../../utils/auth";
 import { isTransactionAllowed } from "../../utils/timeUtils";
-import { 
-  FiHome, 
-  FiPlus, 
-  FiSend, 
-  FiClock, 
-  FiMessageCircle, 
+import logo from "../assets/css/logos.png";
+import {
+  FiHome,
+  FiPlus,
+  FiSend,
+  FiClock,
+  FiMessageCircle,
   FiLogOut,
   FiMenu,
   FiX,
@@ -17,97 +18,95 @@ import {
   FiUsers,
   FiCopy,
   FiCheck,
+  FiFileText,
 } from "react-icons/fi";
 
 import NewEntry from "./NewEntry";
 import Transfer from "./Transfer";
 import History from "./History";
 import { AiFillBell } from "react-icons/ai";
-
+import { MdPrivacyTip } from "react-icons/md";
 
 function Dashboard() {
   const [showChat, setShowChat] = useState(false);
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
   const [totalBalance, setTotalBalance] = useState(0);
-  const [activeSection, setActiveSection] = useState(null); 
+  const [activeSection, setActiveSection] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [transactionAllowed, setTransactionAllowed] = useState(true);
-  const [transactionMessage, setTransactionMessage] = useState('');
+  const [transactionMessage, setTransactionMessage] = useState("");
   const [copySuccess, setCopySuccess] = useState(false);
   const [notifications, setNotifications] = useState([]);
-const [unreadCount, setUnreadCount] = useState(0);
-const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const user = getUserFromToken();
-  ('user',user)
+  "user", user;
   if (!user) window.location.href = "/login";
 
   const userId = user.id;
-const userName = user.full_name.toUpperCase();
+  const userName = user.full_name.toUpperCase();
 
-const fetchBalance = async () => {
-  try {
-    const res = await apiClient.get(`/api/user/${userId}/balance`);
-    setTotalBalance(res.data.balance);
-  } catch {
-    setTotalBalance(0);
-  }
-};
+  const fetchBalance = async () => {
+    try {
+      const res = await apiClient.get(`/api/user/${userId}/balance`);
+      setTotalBalance(res.data.balance);
+    } catch {
+      setTotalBalance(0);
+    }
+  };
 
-const copyToClipboard = async (text) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    setCopySuccess(true);
-    setTimeout(() => setCopySuccess(false), 2000);
-  } catch (err) {
-    // Fallback for older browsers
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textArea);
-    setCopySuccess(true);
-    setTimeout(() => setCopySuccess(false), 2000);
-  }
-};
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    }
+  };
 
-const checkTransactionStatus = async () => {
-  try {
-    const status = await isTransactionAllowed();
-    setTransactionAllowed(status.allowed);
-    setTransactionMessage(status.message);
-  } catch (error) {
-    console.error('Error checking transaction status:', error);
-    setTransactionAllowed(true);
-    setTransactionMessage('');
-  }
-};
-
-
+  const checkTransactionStatus = async () => {
+    try {
+      const status = await isTransactionAllowed();
+      setTransactionAllowed(status.allowed);
+      setTransactionMessage(status.message);
+    } catch (error) {
+      console.error("Error checking transaction status:", error);
+      setTransactionAllowed(true);
+      setTransactionMessage("");
+    }
+  };
 
   useEffect(() => {
     fetchBalance();
     checkTransactionStatus();
     fetchNotifications();
-    
+
     // Check transaction status every minute
     const interval = setInterval(() => {
       checkTransactionStatus();
     }, 60000);
-    
+
     // Fetch notifications every 30 seconds
     const notificationInterval = setInterval(() => {
       fetchNotifications();
     }, 30000);
-    
+
     return () => {
       clearInterval(interval);
       clearInterval(notificationInterval);
     };
   }, [userId]);
-
 
   const handleSendRequest = async () => {
     if (!amount || !message) return alert("Please enter amount and message");
@@ -151,8 +150,8 @@ const checkTransactionStatus = async () => {
     try {
       const res = await apiClient.get(`/api/notifications/${userId}`);
       setNotifications(res.data);
-  
-      const unread = res.data.filter(n => n.is_read === 0).length;
+
+      const unread = res.data.filter((n) => n.is_read === 0).length;
       setUnreadCount(unread);
     } catch (err) {
       console.error("Failed to fetch notifications", err);
@@ -162,27 +161,23 @@ const checkTransactionStatus = async () => {
   const markNotificationRead = async (id) => {
     try {
       await apiClient.put(`/api/notifications/${id}/read`);
-  
-      setNotifications(prev =>
-        prev.map(n =>
-          n.id === id ? { ...n, is_read: 1 } : n
-        )
+
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, is_read: 1 } : n))
       );
-  
-      setUnreadCount(prev => Math.max(prev - 1, 0));
+
+      setUnreadCount((prev) => Math.max(prev - 1, 0));
     } catch (err) {
       console.error("Failed to mark read", err);
     }
   };
-  
-  
 
   const renderSection = () => {
     switch (activeSection) {
       case "newEntry":
         return <NewEntry onEntrySuccess={fetchBalance} />;
       case "transfer":
-        return <Transfer onTransferSuccess={fetchBalance}  />;
+        return <Transfer onTransferSuccess={fetchBalance} />;
       case "history":
         return <History />;
       case "referral":
@@ -206,15 +201,19 @@ const checkTransactionStatus = async () => {
             <div className="share-message-section">
               <h3>Share Message</h3>
               <div className="message-container">
-                <textarea 
+                <textarea
                   value="Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!"
-                  readOnly 
+                  readOnly
                   className="share-message-input"
                   rows="3"
                 />
-                <button 
+                <button
                   className="copy-btn"
-                  onClick={() => copyToClipboard("Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!")}
+                  onClick={() =>
+                    copyToClipboard(
+                      "Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!"
+                    )
+                  }
                 >
                   {copySuccess ? <FiCheck /> : <FiCopy />}
                 </button>
@@ -225,33 +224,57 @@ const checkTransactionStatus = async () => {
             <div className="share-buttons">
               <h3>Share Now</h3>
               <div className="share-options">
-                <button 
+                <button
                   className="share-btn whatsapp"
-                  onClick={() => window.open(`https://wa.me/?text=Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!`, '_blank')}
+                  onClick={() =>
+                    window.open(
+                      `https://wa.me/?text=Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!`,
+                      "_blank"
+                    )
+                  }
                 >
                   📱 WhatsApp
                 </button>
-                <button 
+                <button
                   className="share-btn telegram"
-                  onClick={() => window.open(`https://t.me/share/url?text=Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!`, '_blank')}
+                  onClick={() =>
+                    window.open(
+                      `https://t.me/share/url?text=Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!`,
+                      "_blank"
+                    )
+                  }
                 >
                   ✈️ Telegram
                 </button>
-                <button 
+                <button
                   className="share-btn facebook"
-                  onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${window.location.origin}&quote=Hey! Check out Breetta - it's amazing for managing transactions and entries.`, '_blank')}
+                  onClick={() =>
+                    window.open(
+                      `https://www.facebook.com/sharer/sharer.php?u=${window.location.origin}&quote=Hey! Check out Breetta - it's amazing for managing transactions and entries.`,
+                      "_blank"
+                    )
+                  }
                 >
                   📘 Facebook
                 </button>
-                <button 
+                <button
                   className="share-btn twitter"
-                  onClick={() => window.open(`https://twitter.com/intent/tweet?text=Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!`, '_blank')}
+                  onClick={() =>
+                    window.open(
+                      `https://twitter.com/intent/tweet?text=Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!`,
+                      "_blank"
+                    )
+                  }
                 >
                   🐦 Twitter
                 </button>
-                <button 
+                <button
                   className="share-btn copy"
-                  onClick={() => copyToClipboard("Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!")}
+                  onClick={() =>
+                    copyToClipboard(
+                      "Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!"
+                    )
+                  }
                 >
                   📋 Copy Message
                 </button>
@@ -287,7 +310,7 @@ const checkTransactionStatus = async () => {
             </div>
           </div>
         );
-     
+
       default:
         return (
           <>
@@ -308,26 +331,29 @@ const checkTransactionStatus = async () => {
             </div>
 
             <div
-              className={`card new-entry-card ${!transactionAllowed ? 'disabled' : ''}`}
+              className={`card new-entry-card ${
+                !transactionAllowed ? "disabled" : ""
+              }`}
               onClick={() => transactionAllowed && setActiveSection("newEntry")}
             >
               <h3>New Entry</h3>
-              <button 
-                className="btn-primary" 
-                disabled={!transactionAllowed}
-              >
+              <button className="btn-primary" disabled={!transactionAllowed}>
                 + Add New Transaction
               </button>
             </div>
 
             <div className="dashboard-row">
               <div
-                className={`card transfer-card ${!transactionAllowed ? 'disabled' : ''}`}
-                onClick={() => transactionAllowed && setActiveSection("transfer")}
+                className={`card transfer-card ${
+                  !transactionAllowed ? "disabled" : ""
+                }`}
+                onClick={() =>
+                  transactionAllowed && setActiveSection("transfer")
+                }
               >
                 <h3>Transfer</h3>
                 <div className="icon">💸</div>
-                <button 
+                <button
                   className="btn-secondary"
                   disabled={!transactionAllowed}
                 >
@@ -356,58 +382,71 @@ const checkTransactionStatus = async () => {
         <button className="hamburger-btn" onClick={toggleSidebar}>
           {sidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
         </button>
-        <h2>💸 Breetta</h2>
+        <img src={logo} alt="Breetta Logo" className="mobile-logo" />
       </div>
 
       {/* Sidebar Overlay for mobile */}
-      {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+      {sidebarOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
       {/* Sidebar */}
-      <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
+      <aside className={`sidebar ${sidebarOpen ? "sidebar-open" : ""}`}>
         <div className="sidebar-header">
-          <h2>💸 Breetta</h2>
+          <img src={logo} alt="Breetta Logo" className="sidebar-logo" />
           <p>Welcome, {userName}</p>
         </div>
 
         <nav className="sidebar-nav">
-          <button 
-            className={`sidebar-btn ${activeSection === null ? 'active' : ''}`} 
+          <button
+            className={`sidebar-btn ${activeSection === null ? "active" : ""}`}
             onClick={() => handleSidebarItemClick(null)}
           >
             <FiHome className="sidebar-icon" />
             <span>Dashboard</span>
           </button>
-          <button 
-            className={`sidebar-btn ${activeSection === 'newEntry' ? 'active' : ''}`} 
+          <button
+            className={`sidebar-btn ${
+              activeSection === "newEntry" ? "active" : ""
+            }`}
             onClick={() => handleSidebarItemClick("newEntry")}
           >
             <FiPlus className="sidebar-icon" />
             <span>New Entry</span>
           </button>
-          <button 
-            className={`sidebar-btn ${activeSection === 'transfer' ? 'active' : ''}`} 
+          <button
+            className={`sidebar-btn ${
+              activeSection === "transfer" ? "active" : ""
+            }`}
             onClick={() => handleSidebarItemClick("transfer")}
           >
             <FiSend className="sidebar-icon" />
             <span>Transfer</span>
           </button>
-          <button 
-            className={`sidebar-btn ${activeSection === 'history' ? 'active' : ''}`} 
+          <button
+            className={`sidebar-btn ${
+              activeSection === "history" ? "active" : ""
+            }`}
             onClick={() => handleSidebarItemClick("history")}
           >
             <FiClock className="sidebar-icon" />
             <span>History</span>
           </button>
-          <button 
-            className={`sidebar-btn ${activeSection === 'referral' ? 'active' : ''}`} 
+          <button
+            className={`sidebar-btn ${
+              activeSection === "referral" ? "active" : ""
+            }`}
             onClick={() => handleSidebarItemClick("referral")}
           >
             <FiUsers className="sidebar-icon" />
             <span>Referral & Share App</span>
           </button>
-      
-          <button 
-            className="sidebar-btn" 
+
+          <button
+            className="sidebar-btn"
             onClick={() => {
               if (transactionAllowed) {
                 setShowChat(true);
@@ -422,20 +461,35 @@ const checkTransactionStatus = async () => {
             <span>Chat</span>
           </button>
           <button
-  className="sidebar-btn notification-btn"
-  onClick={() => {
-    setShowNotifications(true);
-    setSidebarOpen(false);
-  }}
->
-  <AiFillBell className="sidebar-icon" />
-  <span>Notifications</span>
+            className="sidebar-btn notification-btn"
+            onClick={() => {
+              setShowNotifications(true);
+              setSidebarOpen(false);
+            }}
+          >
+            <AiFillBell className="sidebar-icon" />
+            <span>Notifications</span>
 
-  {unreadCount > 0 && (
-    <span className="notification-badge">{unreadCount}</span>
-  )}
-</button>
+            {unreadCount > 0 && (
+              <span className="notification-badge">{unreadCount}</span>
+            )}
+          </button>
 
+          <button
+            className="sidebar-btn"
+            onClick={() => window.open("/privacy-policy", "_blank")}
+          >
+            <MdPrivacyTip className="sidebar-icon" />
+            <span>Privacy Policy</span>
+          </button>
+
+          <button
+            className="sidebar-btn"
+            onClick={() => window.open("/terms-and-conditions", "_blank")}
+          >
+            <FiFileText className="sidebar-icon" />
+            <span>Terms & Conditions</span>
+          </button>
         </nav>
 
         <button className="logout-btn" onClick={handleLogout}>
@@ -464,7 +518,10 @@ const checkTransactionStatus = async () => {
               onChange={(e) => setMessage(e.target.value)}
             />
             <div className="modal-actions">
-              <button className="btn-secondary" onClick={() => setShowChat(false)}>
+              <button
+                className="btn-secondary"
+                onClick={() => setShowChat(false)}
+              >
                 Cancel
               </button>
               <button className="btn-primary" onClick={handleSendRequest}>
@@ -475,55 +532,56 @@ const checkTransactionStatus = async () => {
         </div>
       )}
 
-{showNotifications && (
-  <div className="modal-overlay">
-    <div className="notification-modal">
-      <div className="notification-header">
-        <h3>Notifications</h3>
-        <button onClick={() => setShowNotifications(false)}>✕</button>
-      </div>
+      {showNotifications && (
+        <div className="modal-overlay">
+          <div className="notification-modal">
+            <div className="notification-header">
+              <h3>Notifications</h3>
+              <button onClick={() => setShowNotifications(false)}>✕</button>
+            </div>
 
-      {notifications.length === 0 ? (
-        <p className="empty-text">No notifications</p>
-      ) : (
-        <div className="notification-list">
-          {notifications.map(n => {
-            const data = n.data ? JSON.parse(n.data) : {};
-            const isAnnouncement = n.type === 'announcement';
-            
-            return (
-              <div
-                key={n.id}
-                className={`notification-item ${n.is_read ? "read" : "unread"} ${isAnnouncement ? "announcement" : ""}`}
-                onClick={() => {
-                  if (!n.is_read) markNotificationRead(n.id);
-                }}
-              >
-                <div className="notification-content">
-                  {isAnnouncement && (
-                    <div className="notification-type">
-                      <FiBell className="type-icon" />
-                      <span>Announcement</span>
+            {notifications.length === 0 ? (
+              <p className="empty-text">No notifications</p>
+            ) : (
+              <div className="notification-list">
+                {notifications.map((n) => {
+                  const data = n.data ? JSON.parse(n.data) : {};
+                  const isAnnouncement = n.type === "announcement";
+
+                  return (
+                    <div
+                      key={n.id}
+                      className={`notification-item ${
+                        n.is_read ? "read" : "unread"
+                      } ${isAnnouncement ? "announcement" : ""}`}
+                      onClick={() => {
+                        if (!n.is_read) markNotificationRead(n.id);
+                      }}
+                    >
+                      <div className="notification-content">
+                        {isAnnouncement && (
+                          <div className="notification-type">
+                            <FiBell className="type-icon" />
+                            <span>Announcement</span>
+                          </div>
+                        )}
+                        {data.title && (
+                          <h4 className="notification-title">{data.title}</h4>
+                        )}
+                        <p className="notification-message">{n.message}</p>
+                        <span className="notification-time">
+                          {new Date(n.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                      {!n.is_read && <div className="unread-dot"></div>}
                     </div>
-                  )}
-                  {data.title && (
-                    <h4 className="notification-title">{data.title}</h4>
-                  )}
-                  <p className="notification-message">{n.message}</p>
-                  <span className="notification-time">
-                    {new Date(n.created_at).toLocaleString()}
-                  </span>
-                </div>
-                {!n.is_read && <div className="unread-dot"></div>}
+                  );
+                })}
               </div>
-            );
-          })}
+            )}
+          </div>
         </div>
       )}
-    </div>
-  </div>
-)}
-
     </div>
   );
 }

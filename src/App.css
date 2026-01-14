@@ -37,6 +37,8 @@ body {
 .logo {
   font-size: 22px;
   font-weight: bold;
+  display: flex;
+  justify-content: center;
 }
 
 .welcome-text {

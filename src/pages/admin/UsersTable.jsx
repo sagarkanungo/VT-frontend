@@ -85,8 +85,13 @@ const AdminDashboard = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
-
+  const sortedUsers = [...filteredUsers].sort(
+    (a, b) => b.id - a.id
+  );
+  const currentUsers = sortedUsers.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
   const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
 
   const formatCurrency = (amount) =>
@@ -268,13 +273,15 @@ const AdminDashboard = () => {
                           )
                         }
                         onError={(e) => {
-                          e.target.src = "/no-image.png";
+                          e.target.onerror = null; // 🔹 Prevent infinite retry / flickering
+                          e.target.src = "/no-image.png"; // Fallback image
                         }}
                       />
                     ) : (
                       "No Document"
                     )}
                   </td>
+
                   {/* <td>{u.approved ? <span className="badge bg-success">Approved</span> : <span className="badge bg-warning">Pending</span>}</td> */}
                   <td>
                     <div className="action-buttons">

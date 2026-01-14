@@ -6,6 +6,7 @@ import Analytics from "./Analytics";
 import ChangeCredentials from "./ChangeCredentials";
 import TimeControl from "./TimeControl";
 import AdminNotifications from "./AdminNotifications";
+import logo from "../../assets/css/logos.png";
 
 import apiClient from "../../../utils/axios";
 import { 
@@ -67,8 +68,8 @@ const AdminDashboard = () => {
         <button className="hamburger-btn" onClick={toggleSidebar}>
           {sidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
         </button>
-        <h2>Breetta</h2>
-      </div>
+        <img src={logo} alt="Breetta Logo" className="mobile-logo" />
+        </div>
 
       {/* Sidebar Overlay for mobile */}
       {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
@@ -76,8 +77,8 @@ const AdminDashboard = () => {
       {/* Sidebar */}
       <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
         <div className="sidebar-header">
-          <h2>Breetta</h2>
-          <p>Welcome, {user?.full_name}</p>
+        <img src={logo} alt="Breetta Logo" className="sidebar-logo" />
+        <p>Welcome, {user?.full_name}</p>
         </div>
 
         <div className="sidebar-nav">

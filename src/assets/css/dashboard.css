@@ -1,6 +1,6 @@
 .dashboard-container {
     display: flex;
-    min-height: 100vh;
+    height: 100vh;
     font-family: sans-serif;
     background-color: #f5f5f5;
     position: relative;
@@ -69,11 +69,18 @@
     padding: 20px;
     box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     transition: transform 0.3s ease;
-    min-height: 100vh;
+    height: 110vh;
     position: relative;
     z-index: 100;
     flex-shrink: 0;
   }
+  .sidebar-logo {
+    width: 90px;      
+    height: auto;
+    display: block;
+    object-fit: contain;
+  }
+  
 
   /* iPad Mini and Small Tablets (768px - 1023px) */
   @media (min-width: 768px) and (max-width: 1023px) {
@@ -121,46 +128,47 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    flex: 1;
-    min-height: 0;   
     /* overflow-y: auto; */
     /* max-height: calc(100vh - 200px); */
   }
 
   /* iPad Mini Sidebar Navigation */
-  @media (min-width: 768px) and (max-width: 1023px) {
-    .sidebar-nav {
-      margin-top: 24px;
-      gap: 6px;
-      max-height: calc(100vh - 160px);
-    }
-    
-    .sidebar-btn {
-      padding: 10px 12px;
-      font-size: 14px;
-    }
-    
-    .sidebar-header h2 {
-      font-size: 20px;
-    }
-    
-    .sidebar-header p {
-      font-size: 12px;
-    }
-    
-    .logout-btn {
-      padding: 10px 12px;
-      font-size: 14px;
-      margin-top: auto;
-    }
+ /* iPad Mini and Small Tablets (768px - 1023px) */
+ 
+/* iPad Mini and Small Tablets (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* links top aligned */
+    padding: 16px;
+    height: 100vh;
   }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;       /* link spacing kam kiya */
+    margin-top: 10px; /* optional, adjust according to design */
+    flex-shrink: 0;
+  }
+
+  .logout-btn {
+    margin-top: 20px; /* thoda gap hi rakhen, zyada nahi */
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+}
+
+
+  
   
   .sidebar-btn {
     background: none;
     color: #fff;
     border: none;
     text-align: left;
-    padding: 14px 16px;
+    padding: 14px 11px;
     border-radius: 12px;
     cursor: pointer;
     font-size: 16px;
@@ -258,6 +266,8 @@
       max-width: calc(100vw - 240px);
     }
   }
+
+  
 
   /* iPad Pro and Large Tablets (1024px - 1366px) */
   @media (min-width: 1024px) and (max-width: 1366px) {
@@ -460,6 +470,24 @@
     /* Show mobile header only on mobile */
     .mobile-header {
       display: flex;
+      align-items: center;
+      position: relative;   /* IMPORTANT */
+      height: 56px;
+      padding: 0 12px;
+    }
+  
+    .hamburger-btn {
+      background: none;
+      border: none;
+      z-index: 2;
+    }
+  
+    .mobile-logo {
+      position: absolute;   /* MAGIC */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70px;
+      height: auto;
     }
 
     /* Show sidebar overlay only when sidebar is open */
@@ -469,7 +497,7 @@
 
     /* Add padding-top only on mobile */
     .dashboard-container {
-      padding-top: 60px;
+      /* padding-top: 60px; */
       flex-direction: column;
     }
 
@@ -502,6 +530,7 @@
       width: 280px;
       padding: 20px;
       padding-top: 80px;
+      display: flex;
       flex-direction: column;
     }
 
@@ -549,7 +578,7 @@
       width: 100%;
       text-align: left;
       justify-content: flex-start;
-      padding: 14px 16px;
+      padding: 14px 11px;
       border-radius: 12px;
       font-size: 16px;
     }

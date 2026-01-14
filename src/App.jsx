@@ -4,34 +4,48 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import "./App.css";
+import PrivacyPolicy from "./components/PrivacyPolicy";
+import TermsAndConditions from "./components/TermsCondition";
+import logo from "../src/assets/css/logos.png";
 
 function App() {
   const location = useLocation();
 
   // Auth pages (centered)
   const isAuthPage =
-  location.pathname === "/" ||
-  location.pathname === "/login" ||
-  location.pathname === "/register";
+    location.pathname === "/" ||
+    location.pathname === "/login" ||
+    location.pathname === "/register";
 
   // Dashboard pages (hide main header on mobile)
-  const isDashboardPage = 
-    location.pathname === "/dashboard" || location.pathname === "/admin/dashboard";
+  const isDashboardPage =
+    location.pathname === "/dashboard" ||
+    location.pathname === "/admin/dashboard";
 
   return (
     <div className={`app-container ${isAuthPage ? "center-form" : ""}`}>
-      <header className={`app-header ${isDashboardPage ? "dashboard-header" : ""}`}>
-        <div className="logo">💸 Breetta </div>
+      <header
+        className={`app-header ${isDashboardPage ? "dashboard-header" : ""}`}
+      >
+        <div className="logo">
+          {" "}
+          <img src={logo} alt="Breetta Logo" className="sidebar-logo" />
+        </div>
         <p className="welcome-text">Welcome to Breetta Transaction App</p>
       </header>
 
       <main className="app-main">
         <Routes>
-        <Route path="/" element={<Login />} /> 
+          <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route
+            path="/terms-and-conditions"
+            element={<TermsAndConditions />}
+          />
         </Routes>
       </main>
     </div>
