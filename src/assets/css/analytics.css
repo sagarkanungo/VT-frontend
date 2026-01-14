@@ -46,7 +46,11 @@
   color: white;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
+  margin-left: 5px;
 }
+
+
+
 
 .refresh-btn:hover:not(:disabled) {
   background: #004080;
@@ -57,6 +61,29 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.reset-all-btn {
+  padding: 0.2rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  background: red;        /* Only difference */
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.reset-all-btn:hover:not(:disabled) {
+  background: #cc0000;    /* Slightly darker red on hover */
+  transform: translateY(-1px);
+}
+
+.reset-all-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 
 @media (max-width: 640px) {
   .analytics-header {

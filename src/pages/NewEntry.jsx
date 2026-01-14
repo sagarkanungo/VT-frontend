@@ -192,9 +192,9 @@ function NewEntry({ onEntrySuccess }) {
           onPageChange={setCurrentPage}
         />
 
-        <div className="grand-total">
+        {/* <div className="grand-total">
           Grand Total: {grandTotal}
-        </div>
+        </div> */}
       </div>
     </TransactionGuard>
   );

@@ -56,6 +56,11 @@ const Analytics = () => {
       : a.totalAmount - b.totalAmount
   );
 
+  const activeGrandTotal = sortedActive.reduce(
+    (sum, entry) => sum + entry.totalAmount,
+    0
+  );
+
   // ================= FETCH ENTRY DETAILS =================
   const openEntryDetails = async (entryNumber) => {
     setSelectedEntry(entryNumber);
@@ -109,6 +114,19 @@ const Analytics = () => {
     link.click();
     document.body.removeChild(link);
   };
+  const resetAllActive = async () => {
+    if (!window.confirm("Are you sure you want to reset all active entries?"))
+      return;
+
+    try {
+      await apiClient.post("/api/admin/entry-analytics/reset-all-active");
+      alert("All active entries have been reset");
+      fetchAnalytics(); // refresh the table
+    } catch (err) {
+      console.error("Reset all active error:", err);
+      alert("Failed to reset all active entries");
+    }
+  };
 
   if (loading) {
     return (
@@ -153,6 +171,9 @@ const Analytics = () => {
           {activeTab === "active" && (
             <>
               <div style={{ marginBottom: "1rem", textAlign: "right" }}>
+                <button onClick={resetAllActive} className="reset-all-btn">
+                  Reset All Active
+                </button>
                 <button
                   onClick={() =>
                     setSortOrder(sortOrder === "desc" ? "asc" : "desc")
@@ -189,33 +210,39 @@ const Analytics = () => {
                   </div>
                 ))}
               </div>
+              <div className="grand-total">
+                Grand Total: {activeGrandTotal.toLocaleString()}
+              </div>
             </>
           )}
 
           {/* ================= INACTIVE ================= */}
           {activeTab === "inactive" && (
-           <div className="inactive-entries-rows scrollable">
-           <div className="row header">
-             <div className="cell">Entry Number</div>
-             <div className="cell">Total Amount</div>
-             <div className="cell">Action</div>
-           </div>
-           {data.inactive.map((entry) => (
-             <div key={entry.entryNumber} className="row">
-               <div className="cell">{String(entry.entryNumber).padStart(4, "0")}</div>
-               <div className="cell">{entry.totalAmount.toLocaleString()}</div>
-               <div className="cell">
-                 <button
-                   className="view-btn"
-                   onClick={() => openEntryDetails(entry.entryNumber)}
-                 >
-                   View
-                 </button>
-               </div>
-             </div>
-           ))}
-         </div>
-         
+            <div className="inactive-entries-rows scrollable">
+              <div className="row header">
+                <div className="cell">Entry Number</div>
+                <div className="cell">Total Amount</div>
+                <div className="cell">Action</div>
+              </div>
+              {data.inactive.map((entry) => (
+                <div key={entry.entryNumber} className="row">
+                  <div className="cell">
+                    {String(entry.entryNumber).padStart(4, "0")}
+                  </div>
+                  <div className="cell">
+                    {entry.totalAmount.toLocaleString()}
+                  </div>
+                  <div className="cell">
+                    <button
+                      className="view-btn"
+                      onClick={() => openEntryDetails(entry.entryNumber)}
+                    >
+                      View
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>

@@ -242,13 +242,13 @@
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  min-width: 1200px; /* Increased for new columns */
+  min-width: 1000px; /* Increased for new columns */
 }
 
 .table th,
 .table td {
   padding: 12px 15px;
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid #e0e0e0;
   font-size: 14px;
 }
@@ -403,24 +403,26 @@
 /* Stack buttons vertically on smaller screens */
 @media (max-width: 992px) {
   .action-buttons {
-    flex-direction: column;
-    align-items: stretch;
+    display: inline-flex !important;
+    flex-direction: row !important;   /* 🔥 force row */
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 6px;
+    width: auto !important;
   }
-  
-  .table td:last-child {
-    white-space: normal;
-  }
-  
+
   .action-buttons .btn {
-    width: 100%;
-    margin-bottom: 4px;
-    margin-right: 0;
+    width: auto !important;
+    max-width: max-content;
+    white-space: nowrap;
   }
-  
+
   .action-buttons .me-2 {
-    margin-right: 0;
+    margin-right: 0 !important;
   }
 }
+
 
 /* Responsive */
 @media (max-width: 768px) {

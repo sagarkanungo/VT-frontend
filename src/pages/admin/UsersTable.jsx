@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import apiClient from "../../../utils/axios";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Pagination from "../../components/Pagination";
-import "../../assets/css/usertable.css";
+import "../../assets/css/usertable.css"
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState([]);

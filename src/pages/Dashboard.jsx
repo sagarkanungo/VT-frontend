@@ -109,7 +109,7 @@ function Dashboard() {
   }, [userId]);
 
   const handleSendRequest = async () => {
-    if (!amount || !message) return alert("Please enter amount and message");
+    if ( !message) return alert("Please enter amount and message");
 
     // Check if transactions are allowed
     const timeCheck = await isTransactionAllowed();
@@ -121,7 +121,7 @@ function Dashboard() {
     try {
       await apiClient.post("/api/request-money", {
         user_id: userId,
-        message: `${amount} - ${message}`,
+        message: `${message}`,
       });
       alert("Request sent to admin");
       setAmount("");
@@ -506,12 +506,12 @@ function Dashboard() {
         <div className="modal-overlay">
           <div className="chat-modal">
             <h3>Request Money</h3>
-            <input
+            {/* <input
               type="number"
               placeholder="Enter amount"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-            />
+            /> */}
             <textarea
               placeholder="Enter message"
               value={message}
