@@ -2,7 +2,9 @@ import { useState } from "react";
 import apiClient from "../../utils/axios";
 import { useNavigate } from "react-router-dom";
 import "../assets/css/register.css";
-import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiEye, FiEyeOff } from "react-icons/fi";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 function Register() {
   const navigate = useNavigate();
@@ -34,14 +36,15 @@ function Register() {
         return;
       }
 
-      setForm(prev => ({ ...prev, id_document: file }));
+      setForm((prev) => ({ ...prev, id_document: file }));
     } else {
-      setForm(prev => ({ ...prev, [name]: value }));
+      setForm((prev) => ({ ...prev, [name]: value }));
     }
   };
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword(!showConfirmPassword);
   const togglePinVisibility = () => setShowPin(!showPin);
 
   const handleSubmit = async (e) => {
@@ -52,7 +55,7 @@ function Register() {
     }
 
     const data = new FormData();
-    Object.keys(form).forEach(key => data.append(key, form[key]));
+    Object.keys(form).forEach((key) => data.append(key, form[key]));
 
     try {
       await apiClient.post("/api/register", data);
@@ -77,12 +80,17 @@ function Register() {
           required
         />
 
-        <input
-          type="text"
-          name="phone"
-          placeholder="Mobile Number"
+        <PhoneInput
+          country={"in"} // default country India
           value={form.phone}
-          onChange={handleChange}
+          onChange={(phone) =>
+            setForm((prev) => ({
+              ...prev,
+              phone: `+${phone}`, // ensures +919876543210 format
+            }))
+          }
+          
+          enableSearch
           required
         />
 
@@ -95,7 +103,11 @@ function Register() {
             onChange={handleChange}
             required
           />
-          <button type="button" className="password-toggle-btn" onClick={togglePasswordVisibility}>
+          <button
+            type="button"
+            className="password-toggle-btn"
+            onClick={togglePasswordVisibility}
+          >
             {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
           </button>
         </div>
@@ -109,7 +121,11 @@ function Register() {
             onChange={handleChange}
             required
           />
-          <button type="button" className="password-toggle-btn" onClick={toggleConfirmPasswordVisibility}>
+          <button
+            type="button"
+            className="password-toggle-btn"
+            onClick={toggleConfirmPasswordVisibility}
+          >
             {showConfirmPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
           </button>
         </div>
@@ -124,7 +140,11 @@ function Register() {
             onChange={handleChange}
             required
           />
-          <button type="button" className="password-toggle-btn" onClick={togglePinVisibility}>
+          <button
+            type="button"
+            className="password-toggle-btn"
+            onClick={togglePinVisibility}
+          >
             {showPin ? <FiEyeOff size={18} /> : <FiEye size={18} />}
           </button>
         </div>
@@ -145,7 +165,8 @@ function Register() {
         </button>
 
         <p className="switch-text">
-          Already have an account? <span onClick={() => navigate("/login")}>Login</span>
+          Already have an account?{" "}
+          <span onClick={() => navigate("/login")}>Login</span>
         </p>
       </form>
     </div>

@@ -121,6 +121,32 @@
   .switch-text span:hover {
     color: #09306f;
   }
+
+  /* Phone input wrapper */
+.react-tel-input {
+  width: 100%;
+}
+
+/* Actual input */
+.react-tel-input .form-control {
+  width: 100% !important;
+  height: 45px;
+}
+
+/* Country dropdown list */
+.react-tel-input .country-list {
+  width: 100% !important;
+  min-width: 320px;
+  max-width: 100%;
+  box-sizing: border-box;
+  z-index: 9999;
+}
+
+/* Dropdown country item */
+.react-tel-input .country-list .country {
+  white-space: normal;
+}
+
   
   /* Responsive */
   @media (max-width: 480px) {

@@ -5,8 +5,8 @@ import AdminMoneyRequests from "./AdminMoneyRequests";
 import Analytics from "./Analytics";
 import ChangeCredentials from "./ChangeCredentials";
 import TimeControl from "./TimeControl";
-import AdminNotifications from "./AdminNotifications";
 import logo from "../../assets/css/logos.png";
+import AdminNotifications from "./AdminNotifications";
 
 import apiClient from "../../../utils/axios";
 import { 
@@ -18,14 +18,94 @@ import {
   FiBarChart2,
   FiSettings,
   FiClock,
-  FiBell
+  FiBell,
+  FiMessageCircle
 } from "react-icons/fi";
+import AdminDashboardChat from "./AdminDashboardChat";
 
 const AdminDashboard = () => {
   const user = getUserFromToken();
+  
+  const userId = user.id;
+  console.log('userId',userId)
   const [activeSection, setActiveSection] = useState("users"); 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+  const [showChatModal, setShowChatModal] = useState(false); // separate from showChat
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
+
+  const fetchAdminUnreadCount = async () => {
+    try {
+      const res = await apiClient.get("/api/admin/money-requests");
+      const rows = res.data || [];
+  
+      // remove duplicates
+      const uniqueUsersMap = new Map();
+      rows.forEach((row) => {
+        if (!uniqueUsersMap.has(row.user_id)) {
+          uniqueUsersMap.set(row.user_id, { user_id: row.user_id, count: 0 });
+        }
+      });
+      const uniqueUsers = Array.from(uniqueUsersMap.values());
+  
+      // get unread count per user
+      const usersWithUnread = await Promise.all(
+        uniqueUsers.map(async (user) => {
+          try {
+            const chatRes = await apiClient.get(
+              `/api/admin/money-requests/${user.user_id}/chat`
+            );
+            const messages = chatRes.data || [];
+            const unreadCount = messages.filter(
+              (msg) => msg.sender === "user" && Number(msg.is_read) === 0
+            ).length;
+            return { ...user, count: unreadCount };
+          } catch (err) {
+            return { ...user, count: 0 };
+          }
+        })
+      );
+  
+      // sum of unread messages from all users
+      const totalUnread = usersWithUnread.reduce((acc, user) => acc + user.count, 0);
+  
+      setUnreadChatCount(totalUnread);
+    } catch (err) {
+      console.error(err);
+      setUnreadChatCount(0);
+    }
+  };
+  
+
+ 
+
+  useEffect(() => {
+    if (!showChatModal) return;
+  
+    const openChat = async () => {
+      // 1️⃣ hide badge immediately
+      setUnreadChatCount(0);
+  
+      // 2️⃣ mark messages read in DB
+      await apiClient.post("/api/user/money-requests/chat/read", {
+        request_id: userId,
+        role: "admin",
+      });
+  
+      // 3️⃣ fetch messages for modal
+      fetchChatMessages();
+    };
+  
+    openChat();
+  }, [showChatModal]);
+  
+
+  useEffect(() => {
+    fetchAdminUnreadCount(); // on page load
+    const interval = setInterval(fetchAdminUnreadCount, 10000); // refresh every 10s
+    return () => clearInterval(interval);
+  }, []);
+  
 
   useEffect(() => {
     if (!user) window.location.href = "/login";
@@ -122,6 +202,22 @@ const AdminDashboard = () => {
             <span>Send Announcement</span>
           </button>
           <button
+            className="sidebar-btn"
+            onClick={() => {
+              setShowChatModal(true);
+              setSidebarOpen(false);
+              // fetchChatMessages(); // load chat history
+              // setUnreadChatCount(0);
+            }}
+          >
+            <FiMessageCircle className="sidebar-icon" />
+            <span>Chat</span>
+
+            {unreadChatCount > 0 && (
+              <span className="notification-badge">{unreadChatCount}</span>
+            )}
+          </button>
+          <button
             className={`sidebar-btn ${activeSection === "credentials" ? "active" : ""}`}
             onClick={() => handleSidebarItemClick("credentials")}
           >
@@ -145,6 +241,12 @@ const AdminDashboard = () => {
         {activeSection === "notifications" && <AdminNotifications />}
         {activeSection === "credentials" && <ChangeCredentials />}
       </main>
+      {showChatModal && (
+        <AdminDashboardChat
+          userId={userId}
+          onClose={() => setShowChatModal(false)}
+        />
+      )}
     </div>
   );
 };

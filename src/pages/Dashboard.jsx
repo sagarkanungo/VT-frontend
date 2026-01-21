@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import apiClient from "../../utils/axios";
 import "../assets/css/dashboard.css";
 import { getUserFromToken } from "../../utils/auth";
@@ -26,6 +26,7 @@ import Transfer from "./Transfer";
 import History from "./History";
 import { AiFillBell } from "react-icons/ai";
 import { MdPrivacyTip } from "react-icons/md";
+import Referral from "../components/Referral";
 
 function Dashboard() {
   const [showChat, setShowChat] = useState(false);
@@ -40,6 +41,68 @@ function Dashboard() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
+  // Chat-specific state
+  const [showChatModal, setShowChatModal] = useState(false); // separate from showChat
+  const [chatMessages, setChatMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [unreadChatCount, setUnreadChatCount] = useState(0);
+
+  const chatEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatMessages]);
+
+  const fetchChatMessages = async () => {
+    try {
+      const res = await apiClient.get(
+        `/api/user/money-requests/${userId}/chat`
+      );
+      setChatMessages(res.data);
+    } catch (err) {
+      console.error("Failed to fetch chat messages", err);
+    }
+  };
+
+  const fetchUnreadChatCount = async () => {
+    try {
+      const res = await apiClient.get(
+        `/api/user/money-requests/${userId}/chat`
+      );
+  
+      const unread = res.data.filter(
+        (msg) => msg.sender === "admin" && msg.is_read === 0
+      ).length;
+  
+      setUnreadChatCount(unread);
+    } catch (err) {
+      console.error("Failed to fetch unread chat count", err);
+    }
+  };
+  
+  
+  
+
+  // Send chat message
+  const sendChatMessage = async () => {
+    if (!newMessage.trim()) return;
+
+    try {
+      await apiClient.post(`/api/user/money-requests/chat`, {
+        request_id: userId, // correct field for general chat
+        sender: "user", // who is sending
+        message: newMessage, // actual message
+      });
+      setNewMessage("");
+      fetchChatMessages(); // refresh after sending
+    } catch (err) {
+      console.error("Failed to send message", err);
+    }
+  };
 
   const user = getUserFromToken();
   "user", user;
@@ -109,7 +172,7 @@ function Dashboard() {
   }, [userId]);
 
   const handleSendRequest = async () => {
-    if ( !message) return alert("Please enter amount and message");
+    if (!message) return alert("Please enter amount and message");
 
     // Check if transactions are allowed
     const timeCheck = await isTransactionAllowed();
@@ -171,6 +234,33 @@ function Dashboard() {
       console.error("Failed to mark read", err);
     }
   };
+  useEffect(() => {
+    if (!showChatModal) return;
+  
+    const openChat = async () => {
+      // 1️⃣ hide badge immediately
+      setUnreadChatCount(0);
+  
+      // 2️⃣ mark messages read in DB
+      await apiClient.post("/api/user/money-requests/chat/read", {
+        request_id: userId,
+      });
+  
+      // 3️⃣ fetch messages for modal
+      fetchChatMessages();
+    };
+  
+    openChat();
+  }, [showChatModal]);
+  
+
+  useEffect(() => {
+    const interval = setInterval(fetchUnreadChatCount, 10000); // every 10s
+    return () => clearInterval(interval);
+  }, []);
+  
+  
+  
 
   const renderSection = () => {
     switch (activeSection) {
@@ -181,135 +271,7 @@ function Dashboard() {
       case "history":
         return <History />;
       case "referral":
-        return (
-          <div className="referral-section">
-            <div className="referral-header">
-              <h2>Share Breetta</h2>
-              <p>Invite your friends to join Breetta!</p>
-            </div>
-
-            {/* App Info */}
-            <div className="app-info-card">
-              <div className="app-icon">💸</div>
-              <div className="app-details">
-                <h3>Breetta</h3>
-                <p>The best app for managing your transactions and entries</p>
-              </div>
-            </div>
-
-            {/* Share Message */}
-            <div className="share-message-section">
-              <h3>Share Message</h3>
-              <div className="message-container">
-                <textarea
-                  value="Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!"
-                  readOnly
-                  className="share-message-input"
-                  rows="3"
-                />
-                <button
-                  className="copy-btn"
-                  onClick={() =>
-                    copyToClipboard(
-                      "Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!"
-                    )
-                  }
-                >
-                  {copySuccess ? <FiCheck /> : <FiCopy />}
-                </button>
-              </div>
-            </div>
-
-            {/* Share Buttons */}
-            <div className="share-buttons">
-              <h3>Share Now</h3>
-              <div className="share-options">
-                <button
-                  className="share-btn whatsapp"
-                  onClick={() =>
-                    window.open(
-                      `https://wa.me/?text=Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!`,
-                      "_blank"
-                    )
-                  }
-                >
-                  📱 WhatsApp
-                </button>
-                <button
-                  className="share-btn telegram"
-                  onClick={() =>
-                    window.open(
-                      `https://t.me/share/url?text=Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!`,
-                      "_blank"
-                    )
-                  }
-                >
-                  ✈️ Telegram
-                </button>
-                <button
-                  className="share-btn facebook"
-                  onClick={() =>
-                    window.open(
-                      `https://www.facebook.com/sharer/sharer.php?u=${window.location.origin}&quote=Hey! Check out Breetta - it's amazing for managing transactions and entries.`,
-                      "_blank"
-                    )
-                  }
-                >
-                  📘 Facebook
-                </button>
-                <button
-                  className="share-btn twitter"
-                  onClick={() =>
-                    window.open(
-                      `https://twitter.com/intent/tweet?text=Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!`,
-                      "_blank"
-                    )
-                  }
-                >
-                  🐦 Twitter
-                </button>
-                <button
-                  className="share-btn copy"
-                  onClick={() =>
-                    copyToClipboard(
-                      "Hey! Check out Breetta - it's amazing for managing transactions and entries. Download it now!"
-                    )
-                  }
-                >
-                  📋 Copy Message
-                </button>
-              </div>
-            </div>
-
-            {/* Why Share */}
-            <div className="why-share">
-              <h3>Why Share Breetta?</h3>
-              <div className="benefits">
-                <div className="benefit">
-                  <div className="benefit-icon">✨</div>
-                  <div className="benefit-content">
-                    <h4>Easy to Use</h4>
-                    <p>Simple and intuitive interface for everyone</p>
-                  </div>
-                </div>
-                <div className="benefit">
-                  <div className="benefit-icon">🔒</div>
-                  <div className="benefit-content">
-                    <h4>Secure</h4>
-                    <p>Your data and transactions are completely safe</p>
-                  </div>
-                </div>
-                <div className="benefit">
-                  <div className="benefit-icon">⚡</div>
-                  <div className="benefit-content">
-                    <h4>Fast</h4>
-                    <p>Quick transactions and instant updates</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
+        return  <Referral />;
 
       default:
         return (
@@ -458,7 +420,7 @@ function Dashboard() {
             disabled={!transactionAllowed}
           >
             <FiMessageCircle className="sidebar-icon" />
-            <span>Chat</span>
+            <span>Request Money</span>
           </button>
           <button
             className="sidebar-btn notification-btn"
@@ -472,6 +434,22 @@ function Dashboard() {
 
             {unreadCount > 0 && (
               <span className="notification-badge">{unreadCount}</span>
+            )}
+          </button>
+          <button
+            className="sidebar-btn"
+            onClick={() => {
+              setShowChatModal(true);
+              setSidebarOpen(false);
+              // fetchChatMessages(); // load chat history
+              // setUnreadChatCount(0);
+            }}
+          >
+            <FiMessageCircle className="sidebar-icon" />
+            <span>Chat</span>
+
+            {unreadChatCount > 0 && (
+              <span className="notification-badge">{unreadChatCount}</span>
             )}
           </button>
 
@@ -579,6 +557,59 @@ function Dashboard() {
                 })}
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {showChatModal && (
+        <div className="modal-overlay">
+          <div className="chat-modal">
+            <h3>Chat with Admin</h3>
+
+            {/* Chat History */}
+            <div className="chat-history">
+              {chatMessages.length === 0 ? (
+                <p className="empty-text">No messages yet</p>
+              ) : (
+                chatMessages.map((msg, idx) => (
+                  <div
+                  key={idx}
+                  className={`chat-msg ${
+                    msg.sender === "user" ? "user" : "admin"
+                  }`}
+                >
+                  <span className="sender">
+                    {msg.sender === "user" ? "You" : "Admin"}:
+                  </span>
+                  <span className="message">{msg.message}</span>
+                  <span className="time">
+                    {new Date(msg.created_at).toLocaleString()}
+                  </span>
+                </div>
+                
+                ))
+              )}
+               <div ref={chatEndRef} />
+            </div>
+
+            {/* Input to send message */}
+            <textarea
+            className="ct-text"
+              placeholder="Type a message..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+            />
+
+            <div className="modal-actions">
+              <button
+                className="btn-secondary"
+                onClick={() => setShowChatModal(false)}
+              >
+                Close
+              </button>
+              <button className="btn-primary" onClick={sendChatMessage}>
+                Send
+              </button>
+            </div>
           </div>
         </div>
       )}
